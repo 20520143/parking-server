@@ -220,3 +220,28 @@ func (h *ParkingLotHandler) DeleteParkingLot(r *ginext.Request) (*ginext.Respons
 		Data: "Xóa bản ghi thành công",
 	}}, nil
 }
+
+func (h *ParkingLotHandler) GetListParkingLotCompany(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	// parse & check valid request
+	var req model.GetListParkingLotReq
+	if err := r.GinCtx.BindQuery(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.service.GetListParkingLotCompany(r.Context(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
+		Data: res.Data,
+		Meta: res.Meta,
+	}}, nil
+}

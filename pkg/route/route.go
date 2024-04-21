@@ -3,6 +3,7 @@ package route
 import (
 	"fmt"
 	"github.com/caarlos0/env/v6"
+	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	swagger "github.com/swaggo/gin-swagger"
 	"gitlab.com/goxp/cloud0/ginext"
@@ -49,6 +50,8 @@ func NewService() *Service {
 	blockService := service2.NewBlockService(repoPG)
 	slotService := service2.NewParkingSlotService(repoPG)
 	vehicleService := service2.NewVehicleService(repoPG)
+	timeFrameService := service2.NewTimeFrameService(repoPG)
+	companyService := service2.NewCompanyService(repoPG)
 
 	//handler
 	authHandler := handlers.NewAuthHandler(authService)
@@ -56,8 +59,11 @@ func NewService() *Service {
 	blockHandler := handlers.NewBlockHandler(blockService)
 	slotHandler := handlers.NewParkingSlotHandler(slotService)
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
+	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
+	companyHanler := handlers.NewCompanyHandler(companyService)
 
 	v1Api := s.Router.Group("/api/v1")
+	merchantApi := s.Router.Group("/api/merchant")
 	swaggerApi := s.Router.Group("/")
 
 	// swagger
@@ -94,6 +100,17 @@ func NewService() *Service {
 	v1Api.PUT("/vehicle/update/:id", ginext.WrapHandler(vehicleHandler.UpdateVehicle))
 	v1Api.DELETE("/vehicle/delete/:id", ginext.WrapHandler(vehicleHandler.DeleteVehicle))
 
+	// company
+	merchantApi.POST("/company/create", cors.Default(), ginext.WrapHandler(companyHanler.CreateCompany))
+	merchantApi.POST("/company/login", cors.Default(), ginext.WrapHandler(companyHanler.Login))
+	merchantApi.GET("/company/get-one/:id", cors.Default(), ginext.WrapHandler(companyHanler.GetOneCompany))
+
+	merchantApi.GET("/parking-lot/get-list", ginext.WrapHandler(lotHandler.GetListParkingLotCompany))
+	merchantApi.GET("/parking-lot/get-one/:id", ginext.WrapHandler(lotHandler.GetOneParkingLot))
+
+	merchantApi.GET("/block/get-list", ginext.WrapHandler(blockHandler.GetListBlock))
+
+	merchantApi.GET("/time-frame/get-list", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
 	// Migrate
 	migrateHandler := handlers.NewMigrationHandler(db)
 	s.Router.POST("/internal/migrate", migrateHandler.Migrate)
