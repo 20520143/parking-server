@@ -69,6 +69,11 @@ type PGInterface interface {
 	GetListVehicle(ctx context.Context, req model.ListVehicleReq) (model.ListVehicleRes, error)
 	UpdateVehicle(ctx context.Context, req *model.Vehicle) error
 	DeleteVehicle(ctx context.Context, id uuid.UUID) error
+
+	// company
+	CreateCompany(ctx context.Context, req *model.Company) error
+	GetCompanyByEmail(ctx context.Context, email string) (model.Company, error)
+	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 }
 
 type RepoPG struct {
