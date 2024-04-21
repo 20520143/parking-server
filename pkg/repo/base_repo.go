@@ -48,6 +48,7 @@ type PGInterface interface {
 	GetListParkingLot(ctx context.Context, req model.ListParkingLotReq) (model.ListParkingLotRes, error)
 	UpdateParkingLot(ctx context.Context, req *model.ParkingLot) error
 	DeleteParkingLot(ctx context.Context, id uuid.UUID) error
+	GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (model.ListParkingLotRes, error)
 
 	// Block
 	CreateBlock(ctx context.Context, req *model.Block) error
@@ -69,6 +70,9 @@ type PGInterface interface {
 	GetListVehicle(ctx context.Context, req model.ListVehicleReq) (model.ListVehicleRes, error)
 	UpdateVehicle(ctx context.Context, req *model.Vehicle) error
 	DeleteVehicle(ctx context.Context, id uuid.UUID) error
+
+	//time frame
+	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam, tx *gorm.DB) (res *model.ListTimeFrame, err error)
 
 	// company
 	CreateCompany(ctx context.Context, req *model.Company) error

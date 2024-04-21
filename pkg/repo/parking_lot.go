@@ -108,3 +108,43 @@ func (r *RepoPG) DeleteParkingLot(ctx context.Context, id uuid.UUID) error {
 	}
 	return nil
 }
+
+func (r *RepoPG) GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (res model.ListParkingLotRes, err error) {
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(r, 0))
+
+	tx, cancel := r.DBWithTimeout(ctx)
+	defer cancel()
+
+	tx = tx.Model(&model.ParkingLot{})
+
+	if req.CompanyID != nil {
+		tx = tx.Where("company_id = ?", valid.String(req.CompanyID))
+	}
+
+	if req.Name != nil {
+		name := utils.TransformString(valid.String(req.Name), false)
+		tx = tx.Where("unaccent(name) ilike ?", name+"%")
+	}
+
+	if req.Sort != "" {
+		tx = tx.Order(req.Sort)
+	} else {
+		tx = tx.Order("created_at desc")
+	}
+
+	var total int64 = 0
+	page := r.GetPage(req.Page)
+	pageSize := r.GetPageSize(req.PageSize)
+
+	if err := tx.Count(&total).Limit(pageSize).Offset(r.GetOffset(page, pageSize)).Find(&res.Data).Error; err != nil {
+		log.WithError(err).Error("error_500: failed to GetListParkingLot")
+		return res, ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	if res.Meta, err = r.GetPaginationInfo("", nil, int(total), page, pageSize); err != nil {
+		log.WithError(err).Error("error_500: failed to get pagination")
+		return res, ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	return res, nil
+}
