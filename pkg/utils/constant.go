@@ -22,3 +22,8 @@ const (
 	NUM_OF_JOB            = 10000
 	LIMIT_JOB_PER_WOREKER = 10
 )
+
+const (
+	EXPIRTE_TIME   = 3600 // s
+	JWT_SECRET_KEY = "PARKAR_SERCRET"
+)

@@ -41,6 +41,10 @@ type PGInterface interface {
 
 	//user
 	GetOneUserByPhone(ctx context.Context, phoneNumber string, tx *gorm.DB) (*model.User, error)
+	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
+
+	//token
+	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
 
 	// Parking lot
 	CreateParkingLot(ctx context.Context, req *model.ParkingLot) error
