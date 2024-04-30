@@ -148,3 +148,63 @@ func (r *RepoPG) GetListParkingLotCompany(ctx context.Context, req model.GetList
 
 	return res, nil
 }
+
+func (r *RepoPG) UpdateParkingLotV2(ctx context.Context,
+	parkingLot model.ParkingLot, newTimeFrames []model.TimeFrame, newBlocks []model.Block) error {
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(r, 0))
+
+	tx, cancel := r.DBWithTimeout(ctx)
+	defer cancel()
+
+	err := tx.Transaction(func(tx *gorm.DB) error {
+		var timeFrameIDs []uuid.UUID
+		var blockIDs []uuid.UUID
+		for _, timeFrame := range parkingLot.TimeFrames {
+			timeFrameIDs = append(timeFrameIDs, timeFrame.ID)
+		}
+
+		for _, block := range parkingLot.Blocks {
+			blockIDs = append(blockIDs, block.ID)
+		}
+
+		if err := tx.Where("parking_lot_id = ?", parkingLot.ID).
+			Where("id NOT IN ?", timeFrameIDs).
+			Delete(&model.TimeFrame{}).Error; err != nil {
+			log.WithError(err).Error("error_500: error when DeleteTimeFrame")
+			return ginext.NewError(http.StatusInternalServerError, err.Error())
+		}
+
+		if err := tx.Where("parking_lot_id = ?", parkingLot.ID).
+			Where("id NOT IN ?", blockIDs).
+			Delete(&model.Block{}).Error; err != nil {
+			log.WithError(err).Error("error_500: error when DeleteBlock")
+			return ginext.NewError(http.StatusInternalServerError, err.Error())
+		}
+
+		if len(newTimeFrames) >= 1 {
+			if err := tx.Model(&model.TimeFrame{}).Create(&newTimeFrames).Error; err != nil {
+				log.WithError(err).Error("error_500: error when CreateTimeFrame")
+				return ginext.NewError(http.StatusInternalServerError, err.Error())
+			}
+		}
+
+		if len(newBlocks) >= 1 {
+			if err := tx.Model(&model.Block{}).Create(&newBlocks).Error; err != nil {
+				log.WithError(err).Error("error_500: error when CreateBlock")
+				return ginext.NewError(http.StatusInternalServerError, err.Error())
+			}
+		}
+
+		if err := tx.Model(&model.ParkingLot{}).Where("id = ?", parkingLot.ID).Save(&parkingLot).Error; err != nil {
+			log.WithError(err).Error("error_500: error when UpdateParkingLot")
+			return ginext.NewError(http.StatusInternalServerError, err.Error())
+		}
+
+		return nil
+	})
+	if err != nil {
+		log.WithError(err).Error("error_500: error when UpdateParkingLot")
+		return ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}

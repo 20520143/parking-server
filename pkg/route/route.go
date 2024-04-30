@@ -63,6 +63,7 @@ func NewService() *Service {
 	companyHanler := handlers.NewCompanyHandler(companyService)
 
 	v1Api := s.Router.Group("/api/v1")
+	v2Api := s.Router.Group("/api/v2")
 	merchantApi := s.Router.Group("/api/merchant")
 	swaggerApi := s.Router.Group("/")
 
@@ -95,6 +96,8 @@ func NewService() *Service {
 	v1Api.GET("/parking-slot/get-list", ginext.WrapHandler(slotHandler.GetListParkingSlot))
 	v1Api.PUT("/parking-slot/update/:id", ginext.WrapHandler(slotHandler.UpdateParkingSlot))
 	v1Api.DELETE("/parking-slot/delete/:id", ginext.WrapHandler(slotHandler.DeleteParkingSlot))
+
+	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
 
 	// parking lot
 	v1Api.POST("/vehicle/create", ginext.WrapHandler(vehicleHandler.CreateVehicle))

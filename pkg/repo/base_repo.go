@@ -53,6 +53,7 @@ type PGInterface interface {
 	UpdateParkingLot(ctx context.Context, req *model.ParkingLot) error
 	DeleteParkingLot(ctx context.Context, id uuid.UUID) error
 	GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (model.ListParkingLotRes, error)
+	UpdateParkingLotV2(ctx context.Context, parkingLot model.ParkingLot, newTimeFrames []model.TimeFrame, newBlocks []model.Block) error
 
 	// Block
 	CreateBlock(ctx context.Context, req *model.Block) error

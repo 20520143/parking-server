@@ -8,15 +8,16 @@ import (
 
 type ParkingLot struct {
 	BaseModel
-	Name        string    `json:"name" gorm:"not null"`
-	Description string    `json:"description"`
-	Address     string    `json:"address"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Lat         string    `json:"lat"`
-	Long        string    `json:"long"`
-	IsActive    bool      `json:"is_active"`
-	CompanyID   uuid.UUID `json:"company_id"`
+	Name        string      `json:"name" gorm:"not null"`
+	Description string      `json:"description"`
+	Address     string      `json:"address"`
+	StartTime   time.Time   `json:"startTime"`
+	EndTime     time.Time   `json:"endTime"`
+	Lat         float64     `json:"lat"`
+	Long        float64     `json:"long"`
+	CompanyID   uuid.UUID   `json:"companyID" gorm:"type:uuid"`
+	TimeFrames  []TimeFrame `json:"timeFrames,omitempty" gorm:"foreignKey:ParkingLotId"`
+	Blocks      []Block     `json:"blocks,omitempty" gorm:"foreignKey:ParkingLotID"`
 }
 
 func (ParkingLot) TableName() string {
@@ -28,12 +29,11 @@ type ParkingLotReq struct {
 	Name        *string    `json:"name" valid:"Required"`
 	Description *string    `json:"description"`
 	Address     *string    `json:"address"`
-	StartTime   *time.Time `json:"start_time"`
-	EndTime     *time.Time `json:"end_time"`
-	Lat         *string    `json:"lat"`
-	Long        *string    `json:"long"`
-	IsActive    *bool      `json:"is_active"`
-	CompanyID   *uuid.UUID `json:"company_id"`
+	StartTime   *time.Time `json:"startTime"`
+	EndTime     *time.Time `json:"endTime"`
+	Lat         *float64   `json:"lat"`
+	Long        *float64   `json:"long"`
+	CompanyID   *uuid.UUID `json:"companyID"`
 }
 
 type ListParkingLotReq struct {
@@ -59,4 +59,17 @@ type GetListParkingLotReq struct {
 	Sort      string   `json:"sort" form:"sort"`
 	Page      int      `json:"page" form:"page"`
 	PageSize  int      `json:"pageSize" form:"pageSize"`
+}
+
+type UpdateParkingLotReq struct {
+	ID          *uuid.UUID  `json:"id"`
+	Name        string      `json:"name" `
+	Description string      `json:"description"`
+	Address     string      `json:"address"`
+	StartTime   time.Time   `json:"startTime"`
+	EndTime     time.Time   `json:"endTime"`
+	Lat         float64     `json:"lat"`
+	Long        float64     `json:"long"`
+	TimeFrames  []TimeFrame `json:"timeFrames"`
+	Blocks      []Block     `json:"blocks" `
 }
