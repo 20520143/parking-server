@@ -71,6 +71,9 @@ func NewService() *Service {
 
 	//auth
 	v1Api.POST("/user/login", ginext.WrapHandler(authHandler.Login))
+	v1Api.POST("/user/reset-password", ginext.WrapHandler(authHandler.ResetPassword))
+	v1Api.POST("/user/send-otp", ginext.WrapHandler(authHandler.SendOtp))
+	v1Api.POST("/user/verify-otp", ginext.WrapHandler(authHandler.VerifyOtp))
 
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))

@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"parking-server/pkg/model"
 	"reflect"
 	"regexp"
@@ -221,4 +222,9 @@ func Sync(from interface{}, to interface{}) interface{} {
 		}
 	}
 	return to
+}
+
+func Hash(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	return string(bytes), err
 }
