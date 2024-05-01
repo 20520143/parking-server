@@ -245,3 +245,32 @@ func (h *ParkingLotHandler) GetListParkingLotCompany(r *ginext.Request) (*ginext
 		Meta: res.Meta,
 	}}, nil
 }
+
+func (h *ParkingLotHandler) UpdateParkingLotV2(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	// parse & check valid request
+	var req model.UpdateParkingLotReq
+	if err := r.GinCtx.BindJSON(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	if len(req.Blocks) < 1 || len(req.TimeFrames) < 1 {
+		log.Error("error_400: Missing block or time frame")
+		return nil, ginext.NewError(http.StatusBadRequest, "Missing block or time frame")
+	}
+
+	res, err := h.service.UpdateParkingLotV2(r.Context(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
+		Data: res,
+	}}, nil
+}
