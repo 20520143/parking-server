@@ -80,3 +80,57 @@ func (h *CompanyHandler) GetOneCompany(r *ginext.Request) (*ginext.Response, err
 
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
+
+func (h *CompanyHandler) UpdateCompany(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	var req model.CompanyReq
+	if err := r.GinCtx.BindJSON(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	// parse id
+	id := utils.ParseIDFromUri(r.GinCtx)
+	if id == nil {
+		log.Error("error_400: Wrong id ")
+		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
+	}
+
+	res, err := h.service.UpdateCompany(r.Context(), valid.UUID(id), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
+}
+
+func (h *CompanyHandler) UpdateCompanyPassword(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	var req model.PasswordChangeReq
+	if err := r.GinCtx.BindJSON(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	// parse id
+	id := utils.ParseIDFromUri(r.GinCtx)
+	if id == nil {
+		log.Error("error_400: Wrong id ")
+		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
+	}
+
+	res, err := h.service.UpdateCompanyPassword(r.Context(), valid.UUID(id), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
+}
