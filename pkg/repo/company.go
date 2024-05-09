@@ -54,3 +54,13 @@ func (r *RepoPG) GetOneCompany(ctx context.Context, id uuid.UUID) (res model.Com
 	}
 	return res, nil
 }
+
+func (r *RepoPG) UpdateCompany(ctx context.Context, req *model.Company) error {
+	tx, cancel := r.DBWithTimeout(ctx)
+	defer cancel()
+
+	if err := tx.Model(&model.Company{}).Where("id = ?", req.ID).Updates(&req).Error; err != nil {
+		return ginext.NewError(http.StatusInternalServerError, "Error when UpdateCompany: "+err.Error())
+	}
+	return nil
+}

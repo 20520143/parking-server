@@ -83,6 +83,10 @@ type PGInterface interface {
 	CreateCompany(ctx context.Context, req *model.Company) error
 	GetCompanyByEmail(ctx context.Context, email string) (model.Company, error)
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
+	UpdateCompany(ctx context.Context, req *model.Company) error
+
+	//ticket
+	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
 }
 
 type RepoPG struct {

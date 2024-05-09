@@ -51,6 +51,7 @@ func NewService() *Service {
 	slotService := service2.NewParkingSlotService(repoPG)
 	vehicleService := service2.NewVehicleService(repoPG)
 	timeFrameService := service2.NewTimeFrameService(repoPG)
+	ticketService := service2.NewTicketService(repoPG)
 	companyService := service2.NewCompanyService(repoPG)
 
 	//handler
@@ -60,6 +61,7 @@ func NewService() *Service {
 	slotHandler := handlers.NewParkingSlotHandler(slotService)
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
 	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
+	ticketHandler := handlers.NewTicketHandler(ticketService)
 	companyHanler := handlers.NewCompanyHandler(companyService)
 
 	v1Api := s.Router.Group("/api/v1")
@@ -108,8 +110,10 @@ func NewService() *Service {
 
 	// company
 	merchantApi.POST("/company/create", cors.Default(), ginext.WrapHandler(companyHanler.CreateCompany))
+	merchantApi.PUT("/company/update/:id", cors.Default(), ginext.WrapHandler(companyHanler.UpdateCompany))
 	merchantApi.POST("/company/login", cors.Default(), ginext.WrapHandler(companyHanler.Login))
 	merchantApi.GET("/company/get-one/:id", cors.Default(), ginext.WrapHandler(companyHanler.GetOneCompany))
+	merchantApi.PUT("/company/update-password/:id", cors.Default(), ginext.WrapHandler(companyHanler.UpdateCompanyPassword))
 
 	merchantApi.GET("/parking-lot/get-list", ginext.WrapHandler(lotHandler.GetListParkingLotCompany))
 	merchantApi.GET("/parking-lot/get-one/:id", ginext.WrapHandler(lotHandler.GetOneParkingLot))
@@ -117,6 +121,7 @@ func NewService() *Service {
 	merchantApi.GET("/block/get-list", ginext.WrapHandler(blockHandler.GetListBlock))
 
 	merchantApi.GET("/time-frame/get-list", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
+	merchantApi.GET("/ticket/get-all", ginext.WrapHandler(ticketHandler.GetAllTicketCompany))
 	// Migrate
 	migrateHandler := handlers.NewMigrationHandler(db)
 	s.Router.POST("/internal/migrate", migrateHandler.Migrate)
