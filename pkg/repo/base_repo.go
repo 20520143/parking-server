@@ -77,6 +77,7 @@ type PGInterface interface {
 	DeleteVehicle(ctx context.Context, id uuid.UUID) error
 
 	//time frame
+	CreateTimeframe(ctx context.Context, req *model.TimeFrame) error
 	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam, tx *gorm.DB) (res *model.ListTimeFrame, err error)
 
 	// company

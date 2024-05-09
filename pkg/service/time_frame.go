@@ -15,6 +15,7 @@ func NewTimeFrameService(repo repo.PGInterface) TimeFrameServiceInterface {
 }
 
 type TimeFrameServiceInterface interface {
+	CreateTimeFrame(ctx context.Context, req model.TimeFrameReq) (*model.TimeFrame, error)
 	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam) (res model.ListTimeFrame, err error)
 }
 
@@ -24,4 +25,13 @@ func (s *TimeFrameService) GetAllTimeFrame(ctx context.Context, req model.GetLis
 		return model.ListTimeFrame{}, err
 	}
 	return *res, nil
+}
+
+func (s *TimeFrameService) CreateTimeFrame(ctx context.Context, req model.TimeFrameReq) (*model.TimeFrame, error) {
+	time := &model.TimeFrame{Duration: req.Duration, Cost: req.Cost, ParkingLotId: req.ParkingLotId}
+
+	if err := s.repo.CreateTimeframe(ctx, time); err != nil {
+		return nil, err
+	}
+	return time, nil
 }

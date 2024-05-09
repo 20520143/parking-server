@@ -24,3 +24,16 @@ func (r *RepoPG) GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrame
 	}
 	return res, nil
 }
+
+func (r *RepoPG) CreateTimeframe(ctx context.Context, req *model.TimeFrame) error {
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(r, 0))
+
+	tx, cancel := r.DBWithTimeout(ctx)
+	defer cancel()
+
+	if err := tx.Model(&model.TimeFrame{}).Create(&req).Error; err != nil {
+		log.WithError(err).Error("error_500: error when CreateTimeFrame")
+		return ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+	return nil
+}

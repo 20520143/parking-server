@@ -85,6 +85,7 @@ func NewService() *Service {
 	v1Api.PUT("/parking-lot/update/:id", ginext.WrapHandler(lotHandler.UpdateParkingLot))
 	v1Api.DELETE("/parking-lot/delete/:id", ginext.WrapHandler(lotHandler.DeleteParkingLot))
 
+	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
 	// block
 	v1Api.POST("/block/create", ginext.WrapHandler(blockHandler.CreateBlock))
 	v1Api.GET("/block/get-one/:id", ginext.WrapHandler(blockHandler.GetOneBlock))
@@ -92,14 +93,15 @@ func NewService() *Service {
 	v1Api.PUT("/block/update/:id", ginext.WrapHandler(blockHandler.UpdateBlock))
 	v1Api.DELETE("/block/delete/:id", ginext.WrapHandler(blockHandler.DeleteBlock))
 
+	//time frame
+	v1Api.POST("/time-frame/create", ginext.WrapHandler(timeFrameHandler.CreateTimeFrame))
+
 	// parking lot
 	v1Api.POST("/parking-slot/create", ginext.WrapHandler(slotHandler.CreateParkingSlot))
 	v1Api.GET("/parking-slot/get-one/:id", ginext.WrapHandler(slotHandler.GetOneParkingSlot))
 	v1Api.GET("/parking-slot/get-list", ginext.WrapHandler(slotHandler.GetListParkingSlot))
 	v1Api.PUT("/parking-slot/update/:id", ginext.WrapHandler(slotHandler.UpdateParkingSlot))
 	v1Api.DELETE("/parking-slot/delete/:id", ginext.WrapHandler(slotHandler.DeleteParkingSlot))
-
-	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
 
 	// parking lot
 	v1Api.POST("/vehicle/create", ginext.WrapHandler(vehicleHandler.CreateVehicle))
