@@ -40,3 +40,7 @@ type VeifryOtpReq struct {
 	PhoneNumber string `json:"phone_number" valid:"Required"`
 	Otp         string `json:"opt" valid:"Required"`
 }
+
+type CheckPhoneReq struct {
+	PhoneNumber string `json:"phone_number" valid:"Required"`
+}
