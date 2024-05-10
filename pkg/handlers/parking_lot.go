@@ -197,13 +197,6 @@ func (h *ParkingLotHandler) UpdateParkingLot(r *ginext.Request) (*ginext.Respons
 func (h *ParkingLotHandler) DeleteParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
-	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
-
 	// parse id
 	id := utils.ParseIDFromUri(r.GinCtx)
 	if id == nil {
@@ -211,7 +204,7 @@ func (h *ParkingLotHandler) DeleteParkingLot(r *ginext.Request) (*ginext.Respons
 		return nil, ginext.NewError(http.StatusBadRequest, "ID không hợp lệ")
 	}
 
-	err = h.service.DeleteParkingLot(r.Context(), valid.UUID(id))
+	err := h.service.DeleteParkingLot(r.Context(), valid.UUID(id))
 	if err != nil {
 		return nil, err
 	}
