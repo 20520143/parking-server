@@ -47,6 +47,7 @@ func NewService() *Service {
 
 	//service
 	authService := service2.NewAuthService(repoPG)
+	userService := service2.NewUserService(repoPG)
 	lotService := service2.NewParkingLotService(repoPG)
 	blockService := service2.NewBlockService(repoPG)
 	vehicleService := service2.NewVehicleService(repoPG)
@@ -56,6 +57,7 @@ func NewService() *Service {
 
 	//handler
 	authHandler := handlers.NewAuthHandler(authService)
+	userHandler := handlers.NewUserHandler(userService)
 	lotHandler := handlers.NewParkingLotHandler(lotService)
 	blockHandler := handlers.NewBlockHandler(blockService)
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
@@ -92,6 +94,9 @@ func NewService() *Service {
 	v1Api.POST("/user/reset-password", ginext.WrapHandler(authHandler.ResetPassword))
 	v1Api.POST("/user/send-otp", ginext.WrapHandler(authHandler.SendOtp))
 	v1Api.POST("/user/verify-otp", ginext.WrapHandler(authHandler.VerifyOtp))
+
+	// user
+	v1Api.POST("/user/check-phone", ginext.WrapHandler(userHandler.CheckDuplicatePhone))
 
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))
