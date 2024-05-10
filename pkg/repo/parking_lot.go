@@ -32,7 +32,7 @@ func (r *RepoPG) GetOneParkingLot(ctx context.Context, id uuid.UUID) (res model.
 	tx, cancel := r.DBWithTimeout(ctx)
 	defer cancel()
 
-	if err = tx.Model(&model.ParkingLot{}).Where("id = ?", id).Take(&res).Error; err != nil {
+	if err = tx.Model(&model.ParkingLot{}).Where("id = ?", id).Preload("TimeFrames").Preload("Blocks").Take(&res).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.WithError(err).Error("error_404: not found")
 			return res, ginext.NewError(http.StatusNotFound, err.Error())

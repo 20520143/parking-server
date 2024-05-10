@@ -26,11 +26,11 @@ type BlockReq struct {
 }
 
 type ListBlockReq struct {
-	Code         *string    `json:"code" form:"code"`
-	ParkingLotID *uuid.UUID `json:"parking_lot_id" form:"parking_lot_id"`
-	Sort         string     `json:"sort" form:"sort"`
-	Page         int        `json:"page" form:"page"`
-	PageSize     int        `json:"page_size" form:"page_size"`
+	Code         *string `json:"code" form:"code"`
+	ParkingLotID *string `json:"parking_lot_id" form:"parking_lot_id"`
+	Sort         string  `json:"sort" form:"sort"`
+	Page         int     `json:"page" form:"page"`
+	PageSize     int     `json:"page_size" form:"page_size"`
 }
 
 type ListBlockRes struct {
