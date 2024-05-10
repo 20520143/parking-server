@@ -19,24 +19,8 @@ func NewParkingLotHandler(service service.ParkingLotInterface) *ParkingLotHandle
 	return &ParkingLotHandler{service: service}
 }
 
-// CreateParkingLot
-// @Tags		ParkingLot
-// @Summary		Create ParkingLot
-// @Security	ApiKeyAuth
-// @Accept		json
-// @Produce		json
-// @Param		x-user-id		header	string					true	"user id"
-// @Param		data			body	model.ParkingLotReq	true	"data"
-// @Router		/api/v1/parking-lot/create [post]
 func (h *ParkingLotHandler) CreateParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
 
 	// parse & check valid request
 	var req model.ParkingLotReq
@@ -58,25 +42,8 @@ func (h *ParkingLotHandler) CreateParkingLot(r *ginext.Request) (*ginext.Respons
 
 }
 
-// GetListParkingLot
-// @Tags		ParkingLot
-// @Summary		Get list ParkingLot
-// @Security	ApiKeyAuth
-// @Accept		json
-// @Produce		json
-// @Param		x-user-id		header		string					true	"user_id"
-// @Param		data			query		model.ListParkingLotReq		true	"data"
-// @Success		200				{object}	model.ListParkingLotRes
-// @Router		/api/v1/parking-lot/get-list [get]
 func (h *ParkingLotHandler) GetListParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
 
 	// parse & check valid request
 	var req model.ListParkingLotReq
@@ -100,25 +67,8 @@ func (h *ParkingLotHandler) GetListParkingLot(r *ginext.Request) (*ginext.Respon
 	}}, nil
 }
 
-// GetOneParkingLot
-// @Tags		ParkingLot
-// @Summary		Get list ParkingLot
-// @Security	ApiKeyAuth
-// @Accept		json
-// @Produce		json
-// @Param		x-user-id		header		string		true	"user_id"
-// @Param		id				path		string		true	"id"
-// @Success		200				{object}	model.ParkingLot
-// @Router		/api/v1/parking-lot/get-one/:id 	[get]
 func (h *ParkingLotHandler) GetOneParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
 
 	// parse id
 	id := utils.ParseIDFromUri(r.GinCtx)
@@ -135,26 +85,8 @@ func (h *ParkingLotHandler) GetOneParkingLot(r *ginext.Request) (*ginext.Respons
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-// UpdateParkingLot
-// @Tags		ParkingLot
-// @Summary		Update ParkingLot
-// @Security	ApiKeyAuth
-// @Accept		json
-// @Produce		json
-// @Param		x-user-id		header		string				true	"user_id"
-// @Param		id				path		string				true	"id"
-// @Param		data			body		model.ParkingLotReq		true	"data"
-// @Success		200				{object}	model.ParkingLot
-// @Router		/api/v1/parking-lot/update/:id 	[put]
 func (h *ParkingLotHandler) UpdateParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
 
 	// parse & check valid request
 	var req model.ParkingLotReq
@@ -184,16 +116,6 @@ func (h *ParkingLotHandler) UpdateParkingLot(r *ginext.Request) (*ginext.Respons
 	}}, nil
 }
 
-// DeleteParkingLot
-// @Tags		ParkingLot
-// @Summary		Delete ParkingLot
-// @Security	ApiKeyAuth
-// @Accept		json
-// @Produce		json
-// @Param		x-user-id		header		string	true	"user id"
-// @Param		id				path		string	true	"id"
-// @Success		200				{string}	success
-// @Router		/api/v1/parking-lot/delete/:id 	[delete]
 func (h *ParkingLotHandler) DeleteParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
