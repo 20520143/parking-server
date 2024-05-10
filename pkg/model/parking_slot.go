@@ -10,6 +10,7 @@ type ParkingSlot struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	BlockID     uuid.UUID `json:"block_id"`
+	Block       *Block    `json:"block,omitempty"`
 }
 
 func (ParkingSlot) TableName() string {
