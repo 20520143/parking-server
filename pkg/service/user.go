@@ -23,6 +23,7 @@ func NewUserService(repo repo.PGInterface) UserServiceInterface {
 type UserServiceInterface interface {
 	CheckDuplicatePhone(ctx context.Context, phoneNumber string) (bool, error)
 	CreateUser(ctx context.Context, req model.CreateUserReq) (*model.User, error)
+	UpdateUser(ctx context.Context, userReq model.UserReq) (*model.User, error)
 }
 
 func (s *UserService) CheckDuplicatePhone(ctx context.Context, phone string) (bool, error) {
@@ -61,6 +62,30 @@ func (s *UserService) CreateUser(ctx context.Context, req model.CreateUserReq) (
 
 	//create
 	if err := s.repo.CreateUser(ctx, user, nil); err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, userReq model.UserReq) (*model.User, error) {
+	user, err := s.repo.GetOneUserById(ctx, valid.UUID(userReq.ID), nil)
+	if err != nil {
+		return nil, err
+	}
+	if userReq.ImageUrl != nil {
+		user.ImageUrl = valid.String(userReq.ImageUrl)
+	}
+	if userReq.DisplayName != nil {
+		user.DisplayName = valid.String(userReq.DisplayName)
+	}
+	if userReq.Email != nil {
+		user.Email = valid.String(userReq.Email)
+	}
+	if userReq.PhoneNumber != nil {
+		user.PhoneNumber = valid.String(userReq.PhoneNumber)
+	}
+
+	if err := s.repo.UpdateUser(ctx, user, nil); err != nil {
 		return nil, err
 	}
 	return user, nil

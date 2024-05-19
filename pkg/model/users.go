@@ -51,3 +51,12 @@ type CreateUserReq struct {
 	PhoneNumber *string `json:"phone_number" valid:"Required"`
 	Email       *string `json:"email"`
 }
+
+type UserReq struct {
+	ID          *uuid.UUID `json:"id" valid:"Required"`
+	DisplayName *string    `json:"displayName"`
+	ImageUrl    *string    `json:"imageUrl"`
+	Password    *string    `json:"password"`
+	PhoneNumber *string    `json:"phoneNumber"`
+	Email       *string    `json:"email"`
+}

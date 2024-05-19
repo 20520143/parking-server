@@ -98,6 +98,7 @@ func NewService() *Service {
 	// user
 	v1Api.POST("/user/create", ginext.WrapHandler(userHandler.CreateUser))
 	v1Api.POST("/user/check-phone", ginext.WrapHandler(userHandler.CheckDuplicatePhone))
+	v1Api.PUT("/user/update/:id", ginext.WrapHandler(userHandler.UpdateUser))
 
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))

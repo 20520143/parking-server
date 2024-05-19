@@ -43,6 +43,7 @@ type PGInterface interface {
 	GetOneUserByPhone(ctx context.Context, phoneNumber string, tx *gorm.DB) (*model.User, error)
 	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	CreateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
+	GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) (*model.User, error)
 
 	//token
 	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
