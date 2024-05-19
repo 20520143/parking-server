@@ -2,7 +2,14 @@ package service
 
 import (
 	"context"
+	"gitlab.com/goxp/cloud0/ginext"
+	"gitlab.com/goxp/cloud0/logger"
+	"gorm.io/gorm"
+	"net/http"
+	"parking-server/pkg/model"
 	"parking-server/pkg/repo"
+	"parking-server/pkg/utils"
+	"parking-server/pkg/valid"
 )
 
 type UserService struct {
@@ -15,6 +22,7 @@ func NewUserService(repo repo.PGInterface) UserServiceInterface {
 
 type UserServiceInterface interface {
 	CheckDuplicatePhone(ctx context.Context, phoneNumber string) (bool, error)
+	CreateUser(ctx context.Context, req model.CreateUserReq) (*model.User, error)
 }
 
 func (s *UserService) CheckDuplicatePhone(ctx context.Context, phone string) (bool, error) {
@@ -26,4 +34,34 @@ func (s *UserService) CheckDuplicatePhone(ctx context.Context, phone string) (bo
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req model.CreateUserReq) (*model.User, error) {
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(s, 0))
+	hashPass, err := utils.Hash(valid.String(req.Password))
+	if err != nil {
+		log.WithError(err).Error("Failed to hash password")
+		return nil, ginext.NewError(http.StatusInternalServerError, "Failed to hash password")
+	}
+	user := &model.User{
+		DisplayName: valid.String(req.DisplayName),
+		Email:       valid.String(req.Email),
+		PhoneNumber: valid.String(req.PhoneNumber),
+		Password:    hashPass,
+	}
+	//check duplicate phone number
+	oldUser, err := s.repo.GetOneUserByPhone(ctx, user.PhoneNumber, nil)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.WithError(err).Error("Err when check duplicate phone")
+		return nil, err
+	}
+	if oldUser != nil {
+		return nil, ginext.NewError(http.StatusBadRequest, "Số điện thoại đã tồn tại ")
+	}
+
+	//create
+	if err := s.repo.CreateUser(ctx, user, nil); err != nil {
+		return nil, err
+	}
+	return user, nil
 }
