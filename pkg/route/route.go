@@ -96,7 +96,9 @@ func NewService() *Service {
 	v1Api.POST("/user/verify-otp", ginext.WrapHandler(authHandler.VerifyOtp))
 
 	// user
+	v1Api.POST("/user/create", ginext.WrapHandler(userHandler.CreateUser))
 	v1Api.POST("/user/check-phone", ginext.WrapHandler(userHandler.CheckDuplicatePhone))
+	v1Api.PUT("/user/update/:id", ginext.WrapHandler(userHandler.UpdateUser))
 
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))
@@ -116,7 +118,7 @@ func NewService() *Service {
 	//time frame
 	v1Api.POST("/time-frame/create", ginext.WrapHandler(timeFrameHandler.CreateTimeFrame))
 
-	// parking lot
+	// vehicle
 	v1Api.POST("/vehicle/create", ginext.WrapHandler(vehicleHandler.CreateVehicle))
 	v1Api.GET("/vehicle/get-one/:id", ginext.WrapHandler(vehicleHandler.GetOneVehicle))
 	v1Api.GET("/vehicle/get-list", ginext.WrapHandler(vehicleHandler.GetListVehicle))

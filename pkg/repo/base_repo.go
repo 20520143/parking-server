@@ -42,6 +42,8 @@ type PGInterface interface {
 	//user
 	GetOneUserByPhone(ctx context.Context, phoneNumber string, tx *gorm.DB) (*model.User, error)
 	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
+	CreateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
+	GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) (*model.User, error)
 
 	//token
 	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
@@ -61,13 +63,6 @@ type PGInterface interface {
 	GetListBlock(ctx context.Context, req model.ListBlockReq) (model.ListBlockRes, error)
 	UpdateBlock(ctx context.Context, req *model.Block) error
 	DeleteBlock(ctx context.Context, id uuid.UUID) error
-
-	// ParkingSlot
-	CreateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
-	GetOneParkingSlot(ctx context.Context, id uuid.UUID) (model.ParkingSlot, error)
-	GetListParkingSlot(ctx context.Context, req model.ListParkingSlotReq) (model.ListParkingSlotRes, error)
-	UpdateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
-	DeleteParkingSlot(ctx context.Context, id uuid.UUID) error
 
 	// Vehicle
 	CreateVehicle(ctx context.Context, req *model.Vehicle) error

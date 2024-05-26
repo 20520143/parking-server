@@ -44,3 +44,19 @@ type VeifryOtpReq struct {
 type CheckPhoneReq struct {
 	PhoneNumber string `json:"phone_number" valid:"Required"`
 }
+
+type CreateUserReq struct {
+	DisplayName *string `json:"display_name"`
+	Password    *string `json:"password" valid:"Required"`
+	PhoneNumber *string `json:"phone_number" valid:"Required"`
+	Email       *string `json:"email"`
+}
+
+type UserReq struct {
+	ID          *uuid.UUID `json:"id" valid:"Required"`
+	DisplayName *string    `json:"displayName"`
+	ImageUrl    *string    `json:"imageUrl"`
+	Password    *string    `json:"password"`
+	PhoneNumber *string    `json:"phoneNumber"`
+	Email       *string    `json:"email"`
+}
