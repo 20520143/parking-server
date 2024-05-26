@@ -73,3 +73,8 @@ type UpdateParkingLotReq struct {
 	TimeFrames  []TimeFrame `json:"timeFrames"`
 	Blocks      []Block     `json:"blocks" `
 }
+
+type ChangeStatusReq struct {
+	ID     *uuid.UUID `json:"id"`
+	Status *string    `json:"status" validate:"required,oneof=active inactive pending"`
+}

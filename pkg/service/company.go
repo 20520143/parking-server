@@ -23,11 +23,12 @@ func NewCompanyService(repo repo.PGInterface) CompanyInterface {
 
 type CompanyInterface interface {
 	CreateCompany(ctx context.Context, req model.CompanyReq) (model.Company, error)
-	//GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error)
+	GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error)
 	LoginCompany(ctx context.Context, email string, password string) (model.Company, error)
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 	UpdateCompany(ctx context.Context, id uuid.UUID, req model.CompanyReq) (model.Company, error)
 	UpdateCompanyPassword(ctx context.Context, id uuid.UUID, req model.PasswordChangeReq) (model.Company, error)
+	ChangeCompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error)
 }
 
 func (s *CompanyService) CreateCompany(ctx context.Context, req model.CompanyReq) (res model.Company, err error) {
@@ -111,4 +112,26 @@ func (s *CompanyService) UpdateCompanyPassword(ctx context.Context, id uuid.UUID
 	}
 
 	return company, nil
+}
+
+func (s *CompanyService) ChangeCompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error) {
+	company, err := s.repo.GetOneCompany(ctx, valid.UUID(req.ID))
+	if err != nil {
+		return company, err
+	}
+
+	if req.Status != nil && *req.Status == company.Status {
+		return company, nil
+	}
+
+	utils.Sync(req, &company)
+	if err := s.repo.UpdateCompany(ctx, &company); err != nil {
+		return company, err
+	}
+
+	return company, nil
+}
+
+func (s *CompanyService) GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error) {
+	return s.repo.GetListCompany(ctx, req)
 }

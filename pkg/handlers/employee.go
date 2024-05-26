@@ -1,29 +1,30 @@
 package handlers
 
 import (
-	"github.com/praslar/lib/common"
-	"gitlab.com/goxp/cloud0/ginext"
-	"gitlab.com/goxp/cloud0/logger"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/service"
 	"parking-server/pkg/utils"
 	"parking-server/pkg/valid"
+
+	"github.com/praslar/lib/common"
+	"gitlab.com/goxp/cloud0/ginext"
+	"gitlab.com/goxp/cloud0/logger"
 )
 
-type CompanyHandler struct {
-	service service.CompanyInterface
+type EmployeeHandler struct {
+	service service.EmployeeInterface
 }
 
-func NewCompanyHandler(service service.CompanyInterface) *CompanyHandler {
-	return &CompanyHandler{service: service}
+func NewEmployeeHandler(service service.EmployeeInterface) *EmployeeHandler {
+	return &EmployeeHandler{service: service}
 }
 
-func (h *CompanyHandler) CreateCompany(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) CreateEmployee(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	// parse & check valid request
-	var req model.CompanyReq
+	var req model.EmployeeReq
 	if err := r.GinCtx.BindJSON(&req); err != nil {
 		log.WithError(err).Error("error_400: Error when get parse req")
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
@@ -33,7 +34,7 @@ func (h *CompanyHandler) CreateCompany(r *ginext.Request) (*ginext.Response, err
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.service.CreateCompany(r.Context(), req)
+	res, err := h.service.CreateEmployee(r.Context(), req)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (h *CompanyHandler) CreateCompany(r *ginext.Request) (*ginext.Response, err
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-func (h *CompanyHandler) Login(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) Login(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	// parse & check valid request
@@ -55,7 +56,7 @@ func (h *CompanyHandler) Login(r *ginext.Request) (*ginext.Response, error) {
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
 	}
 
-	res, err := h.service.LoginCompany(r.Context(), valid.String(req.Email), valid.String(req.Password))
+	res, err := h.service.LoginEmployee(r.Context(), valid.String(req.Email), valid.String(req.Password))
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +64,7 @@ func (h *CompanyHandler) Login(r *ginext.Request) (*ginext.Response, error) {
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-func (h *CompanyHandler) GetOneCompany(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) GetOneEmployee(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	// parse id
@@ -73,7 +74,7 @@ func (h *CompanyHandler) GetOneCompany(r *ginext.Request) (*ginext.Response, err
 		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
 	}
 
-	res, err := h.service.GetOneCompany(r.Context(), valid.UUID(id))
+	res, err := h.service.GetOneEmployee(r.Context(), valid.UUID(id))
 	if err != nil {
 		return nil, err
 	}
@@ -81,10 +82,34 @@ func (h *CompanyHandler) GetOneCompany(r *ginext.Request) (*ginext.Response, err
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-func (h *CompanyHandler) UpdateCompany(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) GetListEmployee(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
-	var req model.CompanyReq
+	var req model.ListEmployeeReq
+	if err := r.GinCtx.BindQuery(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	res, err := h.service.GetListEmployee(r.Context(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
+		Data: res.Data,
+	}}, nil
+}
+
+func (h *EmployeeHandler) UpdateEmployee(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	var req model.EmployeeReq
 	if err := r.GinCtx.BindJSON(&req); err != nil {
 		log.WithError(err).Error("error_400: Error when get parse req")
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
@@ -100,7 +125,7 @@ func (h *CompanyHandler) UpdateCompany(r *ginext.Request) (*ginext.Response, err
 		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
 	}
 
-	res, err := h.service.UpdateCompany(r.Context(), valid.UUID(id), req)
+	res, err := h.service.UpdateEmployee(r.Context(), valid.UUID(id), req)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +133,7 @@ func (h *CompanyHandler) UpdateCompany(r *ginext.Request) (*ginext.Response, err
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-func (h *CompanyHandler) UpdateCompanyPassword(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) UpdateEmployeePassword(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	var req model.PasswordChangeReq
@@ -127,7 +152,7 @@ func (h *CompanyHandler) UpdateCompanyPassword(r *ginext.Request) (*ginext.Respo
 		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
 	}
 
-	res, err := h.service.UpdateCompanyPassword(r.Context(), valid.UUID(id), req)
+	res, err := h.service.UpdateEmployeePassword(r.Context(), valid.UUID(id), req)
 	if err != nil {
 		return nil, err
 	}
@@ -135,49 +160,22 @@ func (h *CompanyHandler) UpdateCompanyPassword(r *ginext.Request) (*ginext.Respo
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
 }
 
-func (h *CompanyHandler) ChangeCompanyStatus(r *ginext.Request) (*ginext.Response, error) {
+func (h *EmployeeHandler) DeleteEmployee(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
-	var req model.ChangeStatusReq
-	if err := r.GinCtx.BindJSON(&req); err != nil {
-		log.WithError(err).Error("error_400: Error when get parse req")
-		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
-	}
-	if err := common.CheckRequireValid(req); err != nil {
-		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
-		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
-	}
 	// parse id
-	req.ID = utils.ParseIDFromUri(r.GinCtx)
-	if req.ID == nil {
+	id := utils.ParseIDFromUri(r.GinCtx)
+	if id == nil {
 		log.Error("error_400: Wrong id ")
-		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
+		return nil, ginext.NewError(http.StatusBadRequest, "Invalid id")
 	}
 
-	res, err := h.service.ChangeCompanyStatus(r.Context(), req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
-}
-
-func (h *CompanyHandler) GetListCompany(r *ginext.Request) (*ginext.Response, error) {
-	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	var req model.ListCompanyReq
-	if err := r.GinCtx.BindQuery(&req); err != nil {
-		log.WithError(err).Error("error_400: Error when get parse req")
-		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
-	}
-
-	res, err := h.service.GetListCompany(r.Context(), req)
+	err := h.service.DeleteEmployee(r.Context(), valid.UUID(id))
 	if err != nil {
 		return nil, err
 	}
 
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
-		Data: res.Data,
-		Meta: res.Meta,
+		Data: "Empployee was deleted",
 	}}, nil
 }

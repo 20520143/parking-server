@@ -64,3 +64,35 @@ func (r *RepoPG) UpdateCompany(ctx context.Context, req *model.Company) error {
 	}
 	return nil
 }
+
+func (r *RepoPG) GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error) {
+	res := model.ListCompanyRes{}
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(r, 0))
+	tx, cancel := r.DBWithTimeout(ctx)
+	defer cancel()
+
+	tx = tx.Model(&model.Company{})
+
+	if req.Sort != "" {
+		tx = tx.Order(req.Sort)
+	} else {
+		tx = tx.Order("created_at desc")
+	}
+
+	var total int64 = 0
+	page := r.GetPage(req.Page)
+	pageSize := r.GetPageSize(req.PageSize)
+
+	err := tx.Count(&total).Limit(pageSize).Offset(r.GetOffset(page, pageSize)).Find(&res.Data).Error
+	if err != nil {
+		log.WithError(err).Error("error_500: failed to GetListCompany")
+		return res, ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	if res.Meta, err = r.GetPaginationInfo("", nil, int(total), page, pageSize); err != nil {
+		log.WithError(err).Error("error_500: failed to get pagination")
+		return res, ginext.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	return res, nil
+}

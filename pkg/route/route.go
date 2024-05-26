@@ -54,6 +54,7 @@ func NewService() *Service {
 	timeFrameService := service2.NewTimeFrameService(repoPG)
 	ticketService := service2.NewTicketService(repoPG)
 	companyService := service2.NewCompanyService(repoPG)
+	employeeService := service2.NewEmployeeService(repoPG)
 
 	//handler
 	authHandler := handlers.NewAuthHandler(authService)
@@ -64,6 +65,7 @@ func NewService() *Service {
 	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
 	ticketHandler := handlers.NewTicketHandler(ticketService)
 	companyHanler := handlers.NewCompanyHandler(companyService)
+	employeeHandler := handlers.NewEmployeeHandler(employeeService)
 
 	route := s.Router
 	route.Use(func() gin.HandlerFunc {
@@ -131,6 +133,8 @@ func NewService() *Service {
 	merchantApi.POST("/company/login", cors.Default(), ginext.WrapHandler(companyHanler.Login))
 	merchantApi.GET("/company/get-one/:id", cors.Default(), ginext.WrapHandler(companyHanler.GetOneCompany))
 	merchantApi.PUT("/company/update-password/:id", cors.Default(), ginext.WrapHandler(companyHanler.UpdateCompanyPassword))
+	merchantApi.PUT("/company/:id/status", cors.Default(), ginext.WrapHandler(companyHanler.ChangeCompanyStatus))
+	merchantApi.GET("/company", cors.Default(), ginext.WrapHandler(companyHanler.GetListCompany))
 
 	merchantApi.GET("/parking-lot/get-list", ginext.WrapHandler(lotHandler.GetListParkingLotCompany))
 	merchantApi.GET("/parking-lot/get-one/:id", ginext.WrapHandler(lotHandler.GetOneParkingLot))
@@ -139,6 +143,15 @@ func NewService() *Service {
 
 	merchantApi.GET("/time-frame/get-list", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
 	merchantApi.GET("/ticket/get-all", ginext.WrapHandler(ticketHandler.GetAllTicketCompany))
+
+	// employee
+	v1Api.POST("/employee/create", cors.Default(), ginext.WrapHandler(employeeHandler.CreateEmployee))
+	v1Api.PUT("/employee/update/:id", cors.Default(), ginext.WrapHandler(employeeHandler.UpdateEmployee))
+	v1Api.GET("/employee/get-list", cors.Default(), ginext.WrapHandler(employeeHandler.GetListEmployee))
+	v1Api.DELETE("/employee/delete/:id", ginext.WrapHandler(employeeHandler.DeleteEmployee))
+	v1Api.POST("/employee/login", cors.Default(), ginext.WrapHandler(employeeHandler.Login))
+	v1Api.GET("/employee/get-one/:id", cors.Default(), ginext.WrapHandler(employeeHandler.GetOneEmployee))
+
 	// Migrate
 	migrateHandler := handlers.NewMigrationHandler(db)
 	s.Router.POST("/internal/migrate", migrateHandler.Migrate)
