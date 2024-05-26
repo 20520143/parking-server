@@ -133,6 +133,8 @@ func NewService() *Service {
 	merchantApi.POST("/company/login", cors.Default(), ginext.WrapHandler(companyHanler.Login))
 	merchantApi.GET("/company/get-one/:id", cors.Default(), ginext.WrapHandler(companyHanler.GetOneCompany))
 	merchantApi.PUT("/company/update-password/:id", cors.Default(), ginext.WrapHandler(companyHanler.UpdateCompanyPassword))
+	merchantApi.PUT("/company/:id/status", cors.Default(), ginext.WrapHandler(companyHanler.ChangeCompanyStatus))
+	merchantApi.GET("/company", cors.Default(), ginext.WrapHandler(companyHanler.GetListCompany))
 
 	merchantApi.GET("/parking-lot/get-list", ginext.WrapHandler(lotHandler.GetListParkingLotCompany))
 	merchantApi.GET("/parking-lot/get-one/:id", ginext.WrapHandler(lotHandler.GetOneParkingLot))

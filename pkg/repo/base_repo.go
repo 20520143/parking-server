@@ -80,6 +80,7 @@ type PGInterface interface {
 	GetCompanyByEmail(ctx context.Context, email string) (model.Company, error)
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 	UpdateCompany(ctx context.Context, req *model.Company) error
+	GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error)
 
 	//ticket
 	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
