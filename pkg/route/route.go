@@ -98,9 +98,11 @@ func NewService() *Service {
 	v1Api.POST("/user/verify-otp", ginext.WrapHandler(authHandler.VerifyOtp))
 
 	// user
+	v1Api.GET("/user/:id", ginext.WrapHandler(userHandler.GetOneUserById))
 	v1Api.POST("/user/create", ginext.WrapHandler(userHandler.CreateUser))
 	v1Api.POST("/user/check-phone", ginext.WrapHandler(userHandler.CheckDuplicatePhone))
 	v1Api.PUT("/user/update/:id", ginext.WrapHandler(userHandler.UpdateUser))
+	v1Api.DELETE("/user/:id", ginext.WrapHandler(userHandler.DeleteUser))
 
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))

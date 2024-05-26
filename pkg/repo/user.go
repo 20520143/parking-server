@@ -80,3 +80,17 @@ func (r *RepoPG) GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) 
 	}
 	return rs, nil
 }
+
+func (r *RepoPG) DeleteUser(ctx context.Context, id string, tx *gorm.DB) error {
+	log := logger.WithCtx(ctx, utils.GetCurrentCaller(r, 0))
+	var cancel context.CancelFunc
+	if tx == nil {
+		tx, cancel = r.DBWithTimeout(ctx)
+		defer cancel()
+	}
+	if err := tx.Where("id = ? ", id).Delete(&model.User{}).Error; err != nil {
+		log.WithError(err).Error("Error when delete user - DeleteUser - RepoPG")
+		return ginext.NewError(http.StatusInternalServerError, "Error when delete user: "+err.Error())
+	}
+	return nil
+}

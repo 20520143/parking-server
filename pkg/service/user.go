@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"gitlab.com/goxp/cloud0/ginext"
 	"gitlab.com/goxp/cloud0/logger"
 	"gorm.io/gorm"
@@ -24,6 +25,8 @@ type UserServiceInterface interface {
 	CheckDuplicatePhone(ctx context.Context, phoneNumber string) (bool, error)
 	CreateUser(ctx context.Context, req model.CreateUserReq) (*model.User, error)
 	UpdateUser(ctx context.Context, userReq model.UserReq) (*model.User, error)
+	GetUserById(ctx context.Context, id uuid.UUID) (*model.User, error)
+	DeleteUser(ctx context.Context, id string) error
 }
 
 func (s *UserService) CheckDuplicatePhone(ctx context.Context, phone string) (bool, error) {
@@ -89,4 +92,16 @@ func (s *UserService) UpdateUser(ctx context.Context, userReq model.UserReq) (*m
 		return nil, err
 	}
 	return user, nil
+}
+
+func (s *UserService) GetUserById(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	rs, err := s.repo.GetOneUserById(ctx, id, nil)
+	if err != nil {
+		return nil, err
+	}
+	return rs, nil
+}
+
+func (s *UserService) DeleteUser(ctx context.Context, id string) error {
+	return s.repo.DeleteUser(ctx, id, nil)
 }
