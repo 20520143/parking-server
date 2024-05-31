@@ -111,6 +111,7 @@ func NewService() *Service {
 	v1Api.PUT("/parking-lot/update/:id", ginext.WrapHandler(lotHandler.UpdateParkingLot))
 	v1Api.DELETE("/parking-lot/delete/:id", ginext.WrapHandler(lotHandler.DeleteParkingLot))
 
+	v1Api.PUT("/parking-lot/:id/status", ginext.WrapHandler(lotHandler.ChangeParkingLotStatus))
 	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
 	// block
 	v1Api.POST("/block/create", ginext.WrapHandler(blockHandler.CreateBlock))
