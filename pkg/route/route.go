@@ -120,7 +120,14 @@ func NewService() *Service {
 	v1Api.DELETE("/block/delete/:id", ginext.WrapHandler(blockHandler.DeleteBlock))
 
 	//time frame
+	v1Api.GET("/time-frame/get-all", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
+	v1Api.POST("/time-frame/create-multi", ginext.WrapHandler(timeFrameHandler.Create))
+	v1Api.PUT("/time-frame/update", ginext.WrapHandler(timeFrameHandler.Update))
+
 	v1Api.POST("/time-frame/create", ginext.WrapHandler(timeFrameHandler.CreateTimeFrame))
+	v1Api.GET("/time-frame/get-one/:id", ginext.WrapHandler(timeFrameHandler.GetOneTimeFrame))
+	v1Api.PUT("/time-frame/update/:id", ginext.WrapHandler(timeFrameHandler.UpdateTimeFrame))
+	v1Api.DELETE("/time-frame/delete/:id", ginext.WrapHandler(timeFrameHandler.DeleteTimeFrame))
 
 	// vehicle
 	v1Api.POST("/vehicle/create", ginext.WrapHandler(vehicleHandler.CreateVehicle))
