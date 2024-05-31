@@ -50,6 +50,7 @@ func NewService() *Service {
 	userService := service2.NewUserService(repoPG)
 	lotService := service2.NewParkingLotService(repoPG)
 	blockService := service2.NewBlockService(repoPG)
+	slotService := service2.NewParkingSlotService(repoPG)
 	vehicleService := service2.NewVehicleService(repoPG)
 	timeFrameService := service2.NewTimeFrameService(repoPG)
 	ticketService := service2.NewTicketService(repoPG)
@@ -61,6 +62,7 @@ func NewService() *Service {
 	userHandler := handlers.NewUserHandler(userService)
 	lotHandler := handlers.NewParkingLotHandler(lotService)
 	blockHandler := handlers.NewBlockHandler(blockService)
+	slotHandler := handlers.NewParkingSlotHandler(slotService)
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
 	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
 	ticketHandler := handlers.NewTicketHandler(ticketService)
@@ -113,12 +115,21 @@ func NewService() *Service {
 
 	v1Api.PUT("/parking-lot/:id/status", ginext.WrapHandler(lotHandler.ChangeParkingLotStatus))
 	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
+
 	// block
 	v1Api.POST("/block/create", ginext.WrapHandler(blockHandler.CreateBlock))
 	v1Api.GET("/block/get-one/:id", ginext.WrapHandler(blockHandler.GetOneBlock))
 	v1Api.GET("/block/get-list", ginext.WrapHandler(blockHandler.GetListBlock))
 	v1Api.PUT("/block/update/:id", ginext.WrapHandler(blockHandler.UpdateBlock))
 	v1Api.DELETE("/block/delete/:id", ginext.WrapHandler(blockHandler.DeleteBlock))
+
+	// parking slot
+	v1Api.POST("/parking-slot/create", ginext.WrapHandler(slotHandler.CreateParkingSlot))
+	v1Api.GET("/parking-slot/get-one/:id", ginext.WrapHandler(slotHandler.GetOneParkingSlot))
+	v1Api.GET("/parking-slot/get-list", ginext.WrapHandler(slotHandler.GetListParkingSlot))
+	v1Api.GET("/parking-slot/available", ginext.WrapHandler(slotHandler.GetAvailableParkingSlot))
+	v1Api.PUT("/parking-slot/update/:id", ginext.WrapHandler(slotHandler.UpdateParkingSlot))
+	v1Api.DELETE("/parking-slot/delete/:id", ginext.WrapHandler(slotHandler.DeleteParkingSlot))
 
 	//time frame
 	v1Api.GET("/time-frame/get-all", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))

@@ -65,6 +65,14 @@ type PGInterface interface {
 	UpdateBlock(ctx context.Context, req *model.Block) error
 	DeleteBlock(ctx context.Context, id uuid.UUID) error
 
+	// ParkingSlot
+	CreateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
+	GetOneParkingSlot(ctx context.Context, id uuid.UUID) (model.ParkingSlot, error)
+	GetListParkingSlot(ctx context.Context, req model.ListParkingSlotReq) (model.ListParkingSlotRes, error)
+	GetAvailableParkingSlot(ctx context.Context, req model.AvailableParkingSlotReq) (model.ListParkingSlotRes, error)
+	UpdateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
+	DeleteParkingSlot(ctx context.Context, id uuid.UUID) error
+
 	// Vehicle
 	CreateVehicle(ctx context.Context, req *model.Vehicle) error
 	GetOneVehicle(ctx context.Context, id uuid.UUID) (model.Vehicle, error)
