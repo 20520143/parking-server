@@ -46,6 +46,20 @@ type PGInterface interface {
 	GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) (*model.User, error)
 	DeleteUser(ctx context.Context, id string, tx *gorm.DB) error
 
+	// ticket
+	CreateTicket(ctx context.Context, req *model.Ticket, tx *gorm.DB) error
+	GetAllTicket(ctx context.Context, req model.GetListTicketParam, tx *gorm.DB) ([]model.Ticket, error)
+	GetOneTicket(ctx context.Context, id string, tx *gorm.DB) (model.Ticket, error)
+	GetOneTicketWithExtend(ctx context.Context, id string, tx *gorm.DB) (model.Ticket, error)
+	GetListExtendTicketByOrigin(ctx context.Context, idParent string, tx *gorm.DB) ([]model.Ticket, error)
+	UpdateTicket(ctx context.Context, ticket *model.Ticket, tx *gorm.DB) error
+	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
+
+	// ticket extend
+	CreateTicketExtend(ctx context.Context, req *model.TicketExtend, tx *gorm.DB) error
+	// long term ticket
+	CreateLongTermTicket(ctx context.Context, ltTicket *model.LongTermTicket, tx *gorm.DB) error
+
 	//token
 	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
 
@@ -96,9 +110,6 @@ type PGInterface interface {
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 	UpdateCompany(ctx context.Context, req *model.Company) error
 	GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error)
-
-	//ticket
-	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
 
 	// employee
 	CreateEmployee(ctx context.Context, req *model.Employee) error
