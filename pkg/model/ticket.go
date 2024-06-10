@@ -24,6 +24,8 @@ type Ticket struct {
 	State            string       `json:"state"`
 	IsExtend         bool         `json:"isExtend"`
 	LongTermTicketId *uuid.UUID   `json:"longTermTicketId,omitempty" gorm:"type:uuid"`
+	IsGoodReview     *bool        `json:"isGoodReview"`
+	Comment          *string      `json:"comment"`
 }
 
 func (t *Ticket) TableName() string {
@@ -88,4 +90,10 @@ type GetListTicketRes struct {
 	Total         float64      `json:"total"`
 	State         string       `json:"state"`
 	IsExtend      bool         `json:"isExtend"`
+}
+
+type ReviewTicketReq struct {
+	TicketId     uuid.UUID `praram:"id"`
+	IsGoodReview bool      `json:"isGoodReview" valid:"Required"`
+	Comment      *string   `json:"comment"`
 }

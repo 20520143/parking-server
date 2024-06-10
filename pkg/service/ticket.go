@@ -2,10 +2,15 @@ package service
 
 import (
 	"context"
+	"errors"
+	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/repo"
 	"parking-server/pkg/valid"
 	"time"
+
+	"gitlab.com/goxp/cloud0/ginext"
+	"gorm.io/gorm"
 )
 
 type TicketService struct {
@@ -24,6 +29,7 @@ type TicketServiceInterface interface {
 	GetOneTicketWithExtend(ctx context.Context, id string) (model.TicketResponse, error)
 	CancelTicket(ctx context.Context, id string) error
 	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) ([]model.GetListTicketRes, error)
+	ReviewTicktet(ctx context.Context, req *model.ReviewTicketReq) error
 }
 
 func (s *TicketService) GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) ([]model.GetListTicketRes, error) {
@@ -62,7 +68,7 @@ func (s *TicketService) CreateTicket(ctx context.Context, req *model.TicketReq) 
 		}
 		s.repo.CreateLongTermTicket(ctx, longTermTicket, nil)
 
-		//create ticket normal
+		// create ticket normal
 		switch req.Type {
 		case "DAILY":
 		case "CYCLE":
@@ -75,6 +81,7 @@ func (s *TicketService) CreateTicket(ctx context.Context, req *model.TicketReq) 
 	}
 	return ticket, nil
 }
+
 func (s *TicketService) ExtendTicket(ctx context.Context, req *model.ExtendTicketReq) (*model.TicketExtend, error) {
 	ticket, err := s.repo.GetOneTicket(ctx, valid.UUID(req.TicketOriginId).String(), nil)
 	if err != nil {
@@ -102,7 +109,7 @@ func (s *TicketService) ExtendTicket(ctx context.Context, req *model.ExtendTicke
 	if err := s.repo.CreateTicket(ctx, extendTicket, nil); err != nil {
 		return nil, err
 	}
-	//create extend ticket table
+	// create extend ticket table
 	ticketEx := &model.TicketExtend{
 		TicketExtendId: extendTicket.ID,
 		TicketId:       ticket.ID,
@@ -112,6 +119,7 @@ func (s *TicketService) ExtendTicket(ctx context.Context, req *model.ExtendTicke
 	}
 	return ticketEx, nil
 }
+
 func (s *TicketService) GetAllTicket(ctx context.Context, req model.GetListTicketParam) ([]model.Ticket, error) {
 	res, err := s.repo.GetAllTicket(ctx, req, nil)
 	if err != nil {
@@ -119,6 +127,7 @@ func (s *TicketService) GetAllTicket(ctx context.Context, req model.GetListTicke
 	}
 	return res, nil
 }
+
 func (s *TicketService) GetOneTicketWithExtend(ctx context.Context, id string) (model.TicketResponse, error) {
 	ticket, err := s.repo.GetOneTicketWithExtend(ctx, id, nil)
 	if err != nil {
@@ -134,6 +143,7 @@ func (s *TicketService) GetOneTicketWithExtend(ctx context.Context, id string) (
 	}
 	return ticketRes, nil
 }
+
 func (s *TicketService) CancelTicket(ctx context.Context, id string) error {
 	ticket, err := s.repo.GetOneTicket(ctx, id, nil)
 	if err != nil {
@@ -145,6 +155,7 @@ func (s *TicketService) CancelTicket(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
 func (s *TicketService) ProcedureWithTicket(ctx context.Context, req *model.ProcedureReq) (bool, error) {
 	ticket, err := s.repo.GetOneTicket(ctx, req.TicketId, nil)
 	if err != nil {
@@ -162,4 +173,29 @@ func (s *TicketService) ProcedureWithTicket(ctx context.Context, req *model.Proc
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *TicketService) ReviewTicktet(ctx context.Context, req *model.ReviewTicketReq) error {
+	ticket, err := s.repo.GetOneTicket(ctx, req.TicketId.String(), nil)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ginext.NewError(http.StatusNotFound, "ticket was not found")
+		}
+		return err
+	}
+
+	if ticket.State != "completed" {
+		return ginext.NewError(http.StatusBadRequest, "ticket is not yet completed")
+	}
+
+	ticket.IsGoodReview = &req.IsGoodReview
+	if req.Comment != nil {
+		ticket.Comment = req.Comment
+	}
+
+	if err := s.repo.UpdateTicket(ctx, &ticket, nil); err != nil {
+		return err
+	}
+
+	return nil
 }
