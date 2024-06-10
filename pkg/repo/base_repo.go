@@ -55,6 +55,12 @@ type PGInterface interface {
 	UpdateTicket(ctx context.Context, ticket *model.Ticket, tx *gorm.DB) error
 	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
 
+	// favorite
+	GetAllFavoriteParkingByUser(ctx context.Context, userId string, tx *gorm.DB) (res []model.Favorite, err error)
+	CreateFavorite(ctx context.Context, favorite *model.Favorite, tx *gorm.DB) error
+	DeleteOneFavorite(ctx context.Context, id uuid.UUID, tx *gorm.DB) error
+	GetOne(ctx context.Context, req model.FavoriteRequestV2, tx *gorm.DB) (model.Favorite, error)
+
 	// ticket extend
 	CreateTicketExtend(ctx context.Context, req *model.TicketExtend, tx *gorm.DB) error
 	// long term ticket

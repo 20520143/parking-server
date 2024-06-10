@@ -54,6 +54,7 @@ func NewService() *Service {
 	vehicleService := service2.NewVehicleService(repoPG)
 	timeFrameService := service2.NewTimeFrameService(repoPG)
 	ticketService := service2.NewTicketService(repoPG)
+	favoriteService := service2.NewFavoriteService(repoPG)
 	companyService := service2.NewCompanyService(repoPG)
 	employeeService := service2.NewEmployeeService(repoPG)
 
@@ -66,6 +67,7 @@ func NewService() *Service {
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
 	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
 	ticketHandler := handlers.NewTicketHandler(ticketService)
+	favoriteHandler := handlers.NewFavoriteHandler(favoriteService)
 	companyHanler := handlers.NewCompanyHandler(companyService)
 	employeeHandler := handlers.NewEmployeeHandler(employeeService)
 
@@ -155,6 +157,12 @@ func NewService() *Service {
 	v1Api.PUT("/ticket/cancel", ginext.WrapHandler(ticketHandler.CancelTicket))
 	v1Api.POST("/ticket/extend", ginext.WrapHandler(ticketHandler.ExtendTicket))
 	v1Api.POST("/ticket/procedure", ginext.WrapHandler(ticketHandler.ProcedureWithTicket))
+
+	// favorite
+	v1Api.POST("/favorite/create", ginext.WrapHandler(favoriteHandler.Create))
+	v1Api.GET("/favorite/get-all", ginext.WrapHandler(favoriteHandler.GetAllFavoriteParkingByUser))
+	v1Api.GET("/favorite/get-one", ginext.WrapHandler(favoriteHandler.GetOneFavoriteParking))
+	v1Api.DELETE("/favorite/delete/:id", ginext.WrapHandler(favoriteHandler.DeleteOne))
 
 	// company
 	merchantApi.POST("/company/create", cors.Default(), ginext.WrapHandler(companyHanler.CreateCompany))
