@@ -18,6 +18,7 @@ type ParkingLot struct {
 	CompanyID   uuid.UUID   `json:"companyID" gorm:"type:uuid"`
 	TimeFrames  []TimeFrame `json:"timeFrames,omitempty" gorm:"foreignKey:ParkingLotId"`
 	Blocks      []Block     `json:"blocks,omitempty" gorm:"foreignKey:ParkingLotID"`
+	Status      string      `json:"status" gorm:"default:pending"`
 }
 
 func (ParkingLot) TableName() string {

@@ -7,10 +7,11 @@ import (
 
 type Block struct {
 	BaseModel
-	Code         string    `json:"code"`
-	Description  string    `json:"description"`
-	Slot         int       `json:"slot"`
-	ParkingLotID uuid.UUID `json:"parking_lot_id"`
+	Code         string        `json:"code"`
+	Description  string        `json:"description"`
+	Slot         int           `json:"slot"`
+	ParkingLotID uuid.UUID     `json:"parking_lot_id"`
+	ParkingSLots []ParkingSlot `json:"parkingSlots"`
 }
 
 func (Block) TableName() string {

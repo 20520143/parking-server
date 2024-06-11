@@ -44,6 +44,27 @@ type PGInterface interface {
 	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	CreateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) (*model.User, error)
+	DeleteUser(ctx context.Context, id string, tx *gorm.DB) error
+
+	// ticket
+	CreateTicket(ctx context.Context, req *model.Ticket, tx *gorm.DB) error
+	GetAllTicket(ctx context.Context, req model.GetListTicketParam, tx *gorm.DB) ([]model.Ticket, error)
+	GetOneTicket(ctx context.Context, id string, tx *gorm.DB) (model.Ticket, error)
+	GetOneTicketWithExtend(ctx context.Context, id string, tx *gorm.DB) (model.Ticket, error)
+	GetListExtendTicketByOrigin(ctx context.Context, idParent string, tx *gorm.DB) ([]model.Ticket, error)
+	UpdateTicket(ctx context.Context, ticket *model.Ticket, tx *gorm.DB) error
+	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
+
+	// favorite
+	GetAllFavoriteParkingByUser(ctx context.Context, userId string, tx *gorm.DB) (res []model.Favorite, err error)
+	CreateFavorite(ctx context.Context, favorite *model.Favorite, tx *gorm.DB) error
+	DeleteOneFavorite(ctx context.Context, id uuid.UUID, tx *gorm.DB) error
+	GetOne(ctx context.Context, req model.FavoriteRequestV2, tx *gorm.DB) (model.Favorite, error)
+
+	// ticket extend
+	CreateTicketExtend(ctx context.Context, req *model.TicketExtend, tx *gorm.DB) error
+	// long term ticket
+	CreateLongTermTicket(ctx context.Context, ltTicket *model.LongTermTicket, tx *gorm.DB) error
 
 	//token
 	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
@@ -64,6 +85,14 @@ type PGInterface interface {
 	UpdateBlock(ctx context.Context, req *model.Block) error
 	DeleteBlock(ctx context.Context, id uuid.UUID) error
 
+	// ParkingSlot
+	CreateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
+	GetOneParkingSlot(ctx context.Context, id uuid.UUID) (model.ParkingSlot, error)
+	GetListParkingSlot(ctx context.Context, req model.ListParkingSlotReq) (model.ListParkingSlotRes, error)
+	GetAvailableParkingSlot(ctx context.Context, req model.AvailableParkingSlotReq) (model.ListParkingSlotRes, error)
+	UpdateParkingSlot(ctx context.Context, req *model.ParkingSlot) error
+	DeleteParkingSlot(ctx context.Context, id uuid.UUID) error
+
 	// Vehicle
 	CreateVehicle(ctx context.Context, req *model.Vehicle) error
 	GetOneVehicle(ctx context.Context, id uuid.UUID) (model.Vehicle, error)
@@ -74,6 +103,12 @@ type PGInterface interface {
 	//time frame
 	CreateTimeframe(ctx context.Context, req *model.TimeFrame) error
 	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam, tx *gorm.DB) (res *model.ListTimeFrame, err error)
+	CreateMultiTimeFrame(ctx context.Context, timeFrame []model.TimeFrame, tx *gorm.DB) (err error)
+	DeleteTimeFrameByParkingLotID(ctx context.Context, parkingLotID string, tx *gorm.DB) (err error)
+
+	GetOneTimeframe(ctx context.Context, id uuid.UUID) (model.TimeFrame, error)
+	UpdateTimeframe(ctx context.Context, req *model.TimeFrame) error
+	DeleteTimeframe(ctx context.Context, id uuid.UUID) error
 
 	// company
 	CreateCompany(ctx context.Context, req *model.Company) error
@@ -81,9 +116,6 @@ type PGInterface interface {
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 	UpdateCompany(ctx context.Context, req *model.Company) error
 	GetListCompany(ctx context.Context, req model.ListCompanyReq) (model.ListCompanyRes, error)
-
-	//ticket
-	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
 
 	// employee
 	CreateEmployee(ctx context.Context, req *model.Employee) error

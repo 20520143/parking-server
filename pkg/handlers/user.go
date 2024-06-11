@@ -8,6 +8,7 @@ import (
 	"parking-server/pkg/model"
 	"parking-server/pkg/service"
 	"parking-server/pkg/utils"
+	"parking-server/pkg/valid"
 )
 
 type UserHandler struct {
@@ -22,6 +23,8 @@ type UserHandlerInterface interface {
 	CreateUser(r *ginext.Request) (*ginext.Response, error)
 	CheckDuplicatePhone(r *ginext.Request) (*ginext.Response, error)
 	UpdateUser(r *ginext.Request) (*ginext.Response, error)
+	GetOneUserById(r *ginext.Request) (*ginext.Response, error)
+	DeleteUser(r *ginext.Request) (*ginext.Response, error)
 }
 
 func (h *UserHandler) CheckDuplicatePhone(r *ginext.Request) (*ginext.Response, error) {
@@ -83,4 +86,31 @@ func (h *UserHandler) UpdateUser(r *ginext.Request) (*ginext.Response, error) {
 		return nil, err
 	}
 	return ginext.NewResponseData(http.StatusOK, res), nil
+}
+func (h *UserHandler) GetOneUserById(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.GinCtx, utils.GetCurrentCaller(h, 0))
+	userID := utils.ParseIDFromUri(r.GinCtx)
+	if userID == nil {
+		log.Error("Miss id!")
+		return nil, ginext.NewError(http.StatusBadRequest, "Bắt buộc phải có id user")
+	}
+	res, err := h.service.GetUserById(r.GinCtx, valid.UUID(userID))
+	if err != nil {
+		return nil, err
+	}
+	return ginext.NewResponseData(http.StatusOK, res), nil
+}
+func (h *UserHandler) DeleteUser(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.GinCtx, utils.GetCurrentCaller(h, 0))
+
+	userID := utils.ParseIDFromUri(r.GinCtx)
+	if userID == nil {
+		log.Error("error_400: Wrong id ")
+		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
+	}
+	err := h.service.DeleteUser(r.GinCtx, valid.UUID(userID).String())
+	if err != nil {
+		return nil, err
+	}
+	return ginext.NewResponse(http.StatusOK), nil
 }
