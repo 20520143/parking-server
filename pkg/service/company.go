@@ -2,15 +2,16 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
-	"gitlab.com/goxp/cloud0/ginext"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/repo"
 	"parking-server/pkg/utils"
 	"parking-server/pkg/valid"
+
+	"github.com/google/uuid"
+	"gitlab.com/goxp/cloud0/ginext"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type CompanyService struct {
@@ -28,15 +29,10 @@ type CompanyInterface interface {
 	GetOneCompany(ctx context.Context, id uuid.UUID) (model.Company, error)
 	UpdateCompany(ctx context.Context, id uuid.UUID, req model.CompanyReq) (model.Company, error)
 	UpdateCompanyPassword(ctx context.Context, id uuid.UUID, req model.PasswordChangeReq) (model.Company, error)
-	ChangeCompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error)
+	ChangecompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error)
 }
 
 func (s *CompanyService) CreateCompany(ctx context.Context, req model.CompanyReq) (res model.Company, err error) {
-	co, err := s.repo.GetCompanyByEmail(ctx, *req.Email)
-	if co.Email == *req.Email {
-		return res, ginext.NewError(http.StatusUnauthorized, "Email already exists")
-	}
-
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(valid.String(req.Password)), 14)
 	if err != nil {
 		return res, err
@@ -66,6 +62,14 @@ func (s *CompanyService) LoginCompany(ctx context.Context, email string, passwor
 	err = bcrypt.CompareHashAndPassword([]byte(company.Password), []byte(password))
 	if err != nil {
 		return company, ginext.NewError(http.StatusUnauthorized, "Incorrect password")
+	}
+
+	if company.Status == "inactive" {
+		return company, ginext.NewError(http.StatusUnauthorized, "Your account is currently inactive")
+	}
+
+	if company.Status == "pending" {
+		return company, ginext.NewError(http.StatusUnauthorized, "Your account is currently under review. We'll be in touch as soon as it's finalized.")
 	}
 
 	return company, nil
@@ -114,7 +118,7 @@ func (s *CompanyService) UpdateCompanyPassword(ctx context.Context, id uuid.UUID
 	return company, nil
 }
 
-func (s *CompanyService) ChangeCompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error) {
+func (s *CompanyService) ChangecompanyStatus(ctx context.Context, req model.ChangeStatusReq) (model.Company, error) {
 	company, err := s.repo.GetOneCompany(ctx, valid.UUID(req.ID))
 	if err != nil {
 		return company, err

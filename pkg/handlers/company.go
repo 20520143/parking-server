@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/praslar/lib/common"
-	"gitlab.com/goxp/cloud0/ginext"
-	"gitlab.com/goxp/cloud0/logger"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/service"
 	"parking-server/pkg/utils"
 	"parking-server/pkg/valid"
+
+	"github.com/praslar/lib/common"
+	"gitlab.com/goxp/cloud0/ginext"
+	"gitlab.com/goxp/cloud0/logger"
 )
 
 type CompanyHandler struct {
@@ -154,7 +155,7 @@ func (h *CompanyHandler) ChangeCompanyStatus(r *ginext.Request) (*ginext.Respons
 		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
 	}
 
-	res, err := h.service.ChangeCompanyStatus(r.Context(), req)
+	res, err := h.service.ChangecompanyStatus(r.Context(), req)
 	if err != nil {
 		return nil, err
 	}

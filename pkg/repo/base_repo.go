@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"math"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/utils"
 	"runtime/debug"
 	"time"
+
+	"github.com/google/uuid"
 
 	"gitlab.com/goxp/cloud0/logger"
 
@@ -39,12 +40,28 @@ type PGInterface interface {
 	DB() (db *gorm.DB)
 	Transaction(ctx context.Context, f func(rp PGInterface) error) error
 
-	//user
+	// user
 	GetOneUserByPhone(ctx context.Context, phoneNumber string, tx *gorm.DB) (*model.User, error)
-	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	CreateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	GetOneUserById(ctx context.Context, id uuid.UUID, tx *gorm.DB) (*model.User, error)
+	UpdateUser(ctx context.Context, user *model.User, tx *gorm.DB) error
 	DeleteUser(ctx context.Context, id string, tx *gorm.DB) error
+
+	// favorite
+	GetAllFavoriteParkingByUser(ctx context.Context, userId string, tx *gorm.DB) (res []model.Favorite, err error)
+	CreateFavorite(ctx context.Context, favorite *model.Favorite, tx *gorm.DB) error
+	DeleteOneFavorite(ctx context.Context, id uuid.UUID, tx *gorm.DB) error
+	GetOne(ctx context.Context, req model.FavoriteRequestV2, tx *gorm.DB) (model.Favorite, error)
+
+	// time frame
+	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam, tx *gorm.DB) (res *model.ListTimeFrame, err error)
+	CreateMultiTimeFrame(ctx context.Context, timeFrame []model.TimeFrame, tx *gorm.DB) (err error)
+	DeleteTimeFrameByParkingLotID(ctx context.Context, parkingLotID string, tx *gorm.DB) (err error)
+
+	CreateTimeframe(ctx context.Context, req *model.TimeFrame) error
+	GetOneTimeframe(ctx context.Context, id uuid.UUID) (model.TimeFrame, error)
+	UpdateTimeframe(ctx context.Context, req *model.TimeFrame) error
+	DeleteTimeframe(ctx context.Context, id uuid.UUID) error
 
 	// ticket
 	CreateTicket(ctx context.Context, req *model.Ticket, tx *gorm.DB) error
@@ -55,28 +72,23 @@ type PGInterface interface {
 	UpdateTicket(ctx context.Context, ticket *model.Ticket, tx *gorm.DB) error
 	GetAllTicketCompany(ctx context.Context, req model.GetListTicketReq) (res []model.GetListTicketRes, err error)
 
-	// favorite
-	GetAllFavoriteParkingByUser(ctx context.Context, userId string, tx *gorm.DB) (res []model.Favorite, err error)
-	CreateFavorite(ctx context.Context, favorite *model.Favorite, tx *gorm.DB) error
-	DeleteOneFavorite(ctx context.Context, id uuid.UUID, tx *gorm.DB) error
-	GetOne(ctx context.Context, req model.FavoriteRequestV2, tx *gorm.DB) (model.Favorite, error)
-
 	// ticket extend
 	CreateTicketExtend(ctx context.Context, req *model.TicketExtend, tx *gorm.DB) error
 	// long term ticket
 	CreateLongTermTicket(ctx context.Context, ltTicket *model.LongTermTicket, tx *gorm.DB) error
 
-	//token
+	// token
 	CreateRefreshToken(ctx context.Context, refreshToken *model.RefreshToken, tx *gorm.DB) error
 
 	// Parking lot
 	CreateParkingLot(ctx context.Context, req *model.ParkingLot) error
 	GetOneParkingLot(ctx context.Context, id uuid.UUID) (model.ParkingLot, error)
 	GetListParkingLot(ctx context.Context, req model.ListParkingLotReq) (model.ListParkingLotRes, error)
+	GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (model.ListParkingLotRes, error)
 	UpdateParkingLot(ctx context.Context, req *model.ParkingLot) error
 	DeleteParkingLot(ctx context.Context, id uuid.UUID) error
-	GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (model.ListParkingLotRes, error)
 	UpdateParkingLotV2(ctx context.Context, parkingLot model.ParkingLot, newTimeFrames []model.TimeFrame, newBlocks []model.Block) error
+	GetParkingLotsInfoByIds(ctx context.Context, req model.GetParkingLotsInfoByIds) ([]model.ParkingLotInfo, error)
 
 	// Block
 	CreateBlock(ctx context.Context, req *model.Block) error
@@ -99,16 +111,6 @@ type PGInterface interface {
 	GetListVehicle(ctx context.Context, req model.ListVehicleReq) (model.ListVehicleRes, error)
 	UpdateVehicle(ctx context.Context, req *model.Vehicle) error
 	DeleteVehicle(ctx context.Context, id uuid.UUID) error
-
-	//time frame
-	CreateTimeframe(ctx context.Context, req *model.TimeFrame) error
-	GetAllTimeFrame(ctx context.Context, req model.GetListTimeFrameParam, tx *gorm.DB) (res *model.ListTimeFrame, err error)
-	CreateMultiTimeFrame(ctx context.Context, timeFrame []model.TimeFrame, tx *gorm.DB) (err error)
-	DeleteTimeFrameByParkingLotID(ctx context.Context, parkingLotID string, tx *gorm.DB) (err error)
-
-	GetOneTimeframe(ctx context.Context, id uuid.UUID) (model.TimeFrame, error)
-	UpdateTimeframe(ctx context.Context, req *model.TimeFrame) error
-	DeleteTimeframe(ctx context.Context, id uuid.UUID) error
 
 	// company
 	CreateCompany(ctx context.Context, req *model.Company) error

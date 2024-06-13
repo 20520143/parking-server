@@ -1,8 +1,11 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/google/uuid"
 	"gitlab.com/goxp/cloud0/ginext"
+	"gorm.io/gorm"
 )
 
 type Block struct {
@@ -10,8 +13,25 @@ type Block struct {
 	Code         string        `json:"code"`
 	Description  string        `json:"description"`
 	Slot         int           `json:"slot"`
-	ParkingLotID uuid.UUID     `json:"parking_lot_id"`
+	ParkingLotID uuid.UUID     `json:"parkingLotId" gorm:"type:uuid"`
 	ParkingSLots []ParkingSlot `json:"parkingSlots"`
+}
+
+func (b *Block) AfterCreate(tx *gorm.DB) error {
+	if b.Slot < 1 {
+		return nil
+	}
+
+	slots := make([]ParkingSlot, b.Slot)
+
+	for i := 0; i < b.Slot; i++ {
+		slots[i] = ParkingSlot{
+			Name:    fmt.Sprintf("%d", i+1),
+			BlockID: b.ID,
+		}
+	}
+
+	return tx.CreateInBatches(&slots, b.Slot).Error
 }
 
 func (Block) TableName() string {

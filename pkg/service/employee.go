@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/repo"
@@ -63,7 +64,7 @@ func (s *EmployeeService) GetListEmployee(ctx context.Context, req model.ListEmp
 func (s *EmployeeService) LoginEmployee(ctx context.Context, email string, password string) (model.Employee, error) {
 	employee, err := s.repo.GetEmployeeByEmail(ctx, email)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return employee, ginext.NewError(http.StatusUnauthorized, "Email not exists")
 		}
 		return employee, err
