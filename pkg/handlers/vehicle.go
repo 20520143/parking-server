@@ -53,9 +53,7 @@ func (h *VehicleHandler) CreateVehicle(r *ginext.Request) (*ginext.Response, err
 	if err != nil {
 		return nil, err
 	}
-
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
-
 }
 
 // GetListVehicle
@@ -72,11 +70,11 @@ func (h *VehicleHandler) GetListVehicle(r *ginext.Request) (*ginext.Response, er
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	// check x-user-id
-	_, err := utils.CurrentUser(r.GinCtx.Request)
-	if err != nil {
-		log.WithError(err).Error("error_401: Error when get current user")
-		return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
-	}
+	//_, err := utils.CurrentUser(r.GinCtx.Request)
+	//if err != nil {
+	//	log.WithError(err).Error("error_401: Error when get current user")
+	//	return nil, ginext.NewError(http.StatusBadRequest, utils.MessageError()[http.StatusUnauthorized])
+	//}
 
 	// parse & check valid request
 	var req model.ListVehicleReq

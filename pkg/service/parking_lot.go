@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"parking-server/pkg/model"
 	"parking-server/pkg/repo"
 	"parking-server/pkg/utils"
 	"parking-server/pkg/valid"
+
+	"github.com/google/uuid"
 )
 
 type ParkingLotService struct {
@@ -22,10 +23,15 @@ type ParkingLotInterface interface {
 	GetListParkingLot(ctx context.Context, req model.ListParkingLotReq) (model.ListParkingLotRes, error)
 	GetOneParkingLot(ctx context.Context, id uuid.UUID) (model.ParkingLot, error)
 	UpdateParkingLot(ctx context.Context, req model.ParkingLotReq) (model.ParkingLot, error)
+	ChangeParkingLotStatus(ctx context.Context, req model.ChangeStatusReq) (model.ParkingLot, error)
+	UpdateParkingLotV2(ctx context.Context, req model.UpdateParkingLotReq) (model.ParkingLot, error)
 	DeleteParkingLot(ctx context.Context, id uuid.UUID) error
 	GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (model.ListParkingLotRes, error)
-	UpdateParkingLotV2(ctx context.Context, req model.UpdateParkingLotReq) (model.ParkingLot, error)
-	ChangeParkingLotStatus(ctx context.Context, req model.ChangeStatusReq) (model.ParkingLot, error)
+	GetParkingLotsInfoByIds(ctx context.Context, req model.GetParkingLotsInfoByIds) (model.ParkingLotsInfoRes, error)
+}
+
+func (s *ParkingLotService) GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (res model.ListParkingLotRes, err error) {
+	return s.repo.GetListParkingLotCompany(ctx, req)
 }
 
 func (s *ParkingLotService) CreateParkingLot(ctx context.Context, req model.ParkingLotReq) (*model.ParkingLot, error) {
@@ -68,12 +74,22 @@ func (s *ParkingLotService) UpdateParkingLot(ctx context.Context, req model.Park
 	return ParkingLot, nil
 }
 
-func (s *ParkingLotService) DeleteParkingLot(ctx context.Context, id uuid.UUID) error {
-	return s.repo.DeleteParkingLot(ctx, id)
-}
+func (s *ParkingLotService) ChangeParkingLotStatus(ctx context.Context, req model.ChangeStatusReq) (model.ParkingLot, error) {
+	ParkingLot, err := s.repo.GetOneParkingLot(ctx, valid.UUID(req.ID))
+	if err != nil {
+		return ParkingLot, err
+	}
 
-func (s *ParkingLotService) GetListParkingLotCompany(ctx context.Context, req model.GetListParkingLotReq) (res model.ListParkingLotRes, err error) {
-	return s.repo.GetListParkingLotCompany(ctx, req)
+	if req.Status != nil && *req.Status == ParkingLot.Status {
+		return ParkingLot, nil
+	}
+
+	utils.Sync(req, &ParkingLot)
+	if err := s.repo.UpdateParkingLot(ctx, &ParkingLot); err != nil {
+		return ParkingLot, err
+	}
+
+	return ParkingLot, nil
 }
 
 func (s *ParkingLotService) UpdateParkingLotV2(ctx context.Context, req model.UpdateParkingLotReq) (model.ParkingLot, error) {
@@ -125,23 +141,12 @@ func (s *ParkingLotService) UpdateParkingLotV2(ctx context.Context, req model.Up
 	}
 
 	return resp, nil
-
 }
 
-func (s *ParkingLotService) ChangeParkingLotStatus(ctx context.Context, req model.ChangeStatusReq) (model.ParkingLot, error) {
-	ParkingLot, err := s.repo.GetOneParkingLot(ctx, valid.UUID(req.ID))
-	if err != nil {
-		return ParkingLot, err
-	}
+func (s *ParkingLotService) DeleteParkingLot(ctx context.Context, id uuid.UUID) error {
+	return s.repo.DeleteParkingLot(ctx, id)
+}
 
-	if req.Status != nil && *req.Status == ParkingLot.Status {
-		return ParkingLot, nil
-	}
-
-	utils.Sync(req, &ParkingLot)
-	if err := s.repo.UpdateParkingLot(ctx, &ParkingLot); err != nil {
-		return ParkingLot, err
-	}
-
-	return ParkingLot, nil
+func (s *ParkingLotService) GetParkingLotsInfoByIds(ctx context.Context, req model.GetParkingLotsInfoByIds) (model.ParkingLotsInfoRes, error) {
+	return s.repo.GetParkingLotsInfoByIds(ctx, req)
 }

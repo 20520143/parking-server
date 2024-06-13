@@ -2,6 +2,11 @@ package route
 
 import (
 	"fmt"
+	"parking-server/conf"
+	"parking-server/pkg/handlers"
+	"parking-server/pkg/repo"
+	service2 "parking-server/pkg/service"
+
 	"github.com/caarlos0/env/v6"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -9,10 +14,6 @@ import (
 	swagger "github.com/swaggo/gin-swagger"
 	"gitlab.com/goxp/cloud0/ginext"
 	"gitlab.com/goxp/cloud0/service"
-	"parking-server/conf"
-	"parking-server/pkg/handlers"
-	"parking-server/pkg/repo"
-	service2 "parking-server/pkg/service"
 )
 
 type extraSetting struct {
@@ -26,7 +27,7 @@ type Service struct {
 
 func NewService() *Service {
 	s := &Service{
-		service.NewApp("Parking", "v1.0"),
+		service.NewApp("Parkar", "v1.0"),
 		&extraSetting{},
 	}
 	// repo
@@ -45,29 +46,29 @@ func NewService() *Service {
 	}
 	repoPG := repo.NewPGRepo(db)
 
-	//service
+	// service
 	authService := service2.NewAuthService(repoPG)
-	userService := service2.NewUserService(repoPG)
+	favoriteService := service2.NewFavoriteService(repoPG)
 	lotService := service2.NewParkingLotService(repoPG)
 	blockService := service2.NewBlockService(repoPG)
 	slotService := service2.NewParkingSlotService(repoPG)
 	vehicleService := service2.NewVehicleService(repoPG)
+	userService := service2.NewUserService(repoPG)
 	timeFrameService := service2.NewTimeFrameService(repoPG)
 	ticketService := service2.NewTicketService(repoPG)
-	favoriteService := service2.NewFavoriteService(repoPG)
 	companyService := service2.NewCompanyService(repoPG)
 	employeeService := service2.NewEmployeeService(repoPG)
 
-	//handler
+	// handler
 	authHandler := handlers.NewAuthHandler(authService)
-	userHandler := handlers.NewUserHandler(userService)
+	favoriteHandler := handlers.NewFavoriteHandler(favoriteService)
 	lotHandler := handlers.NewParkingLotHandler(lotService)
 	blockHandler := handlers.NewBlockHandler(blockService)
 	slotHandler := handlers.NewParkingSlotHandler(slotService)
 	vehicleHandler := handlers.NewVehicleHandler(vehicleService)
+	userHandler := handlers.NewUserHandler(userService)
 	timeFrameHandler := handlers.NewTimeFrameHandler(timeFrameService)
 	ticketHandler := handlers.NewTicketHandler(ticketService)
-	favoriteHandler := handlers.NewFavoriteHandler(favoriteService)
 	companyHanler := handlers.NewCompanyHandler(companyService)
 	employeeHandler := handlers.NewEmployeeHandler(employeeService)
 
@@ -95,11 +96,12 @@ func NewService() *Service {
 	// swagger
 	swaggerApi.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
-	//auth
+	// auth
 	v1Api.POST("/user/login", ginext.WrapHandler(authHandler.Login))
 	v1Api.POST("/user/reset-password", ginext.WrapHandler(authHandler.ResetPassword))
 	v1Api.POST("/user/send-otp", ginext.WrapHandler(authHandler.SendOtp))
 	v1Api.POST("/user/verify-otp", ginext.WrapHandler(authHandler.VerifyOtp))
+	// v1Api.POST("/user/create", ginext.WrapHandler(userHandler.))
 
 	// user
 	v1Api.GET("/user/:id", ginext.WrapHandler(userHandler.GetOneUserById))
@@ -108,12 +110,29 @@ func NewService() *Service {
 	v1Api.PUT("/user/update/:id", ginext.WrapHandler(userHandler.UpdateUser))
 	v1Api.DELETE("/user/:id", ginext.WrapHandler(userHandler.DeleteUser))
 
+	// favorite
+	v1Api.POST("/favorite/create", ginext.WrapHandler(favoriteHandler.Create))
+	v1Api.GET("/favorite/get-all", ginext.WrapHandler(favoriteHandler.GetAllFavoriteParkingByUser))
+	v1Api.GET("/favorite/get-one", ginext.WrapHandler(favoriteHandler.GetOneFavoriteParking))
+	v1Api.DELETE("/favorite/delete/:id", ginext.WrapHandler(favoriteHandler.DeleteOne))
+
+	// time frame
+	v1Api.GET("/time-frame/get-all", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
+	v1Api.POST("/time-frame/create-multi", ginext.WrapHandler(timeFrameHandler.Create))
+	v1Api.PUT("/time-frame/update", ginext.WrapHandler(timeFrameHandler.Update))
+
+	v1Api.POST("/time-frame/create", ginext.WrapHandler(timeFrameHandler.CreateTimeFrame))
+	v1Api.GET("/time-frame/get-one/:id", ginext.WrapHandler(timeFrameHandler.GetOneTimeFrame))
+	v1Api.PUT("/time-frame/update/:id", ginext.WrapHandler(timeFrameHandler.UpdateTimeFrame))
+	v1Api.DELETE("/time-frame/delete/:id", ginext.WrapHandler(timeFrameHandler.DeleteTimeFrame))
+
 	// parking lot
 	v1Api.POST("/parking-lot/create", ginext.WrapHandler(lotHandler.CreateParkingLot))
 	v1Api.GET("/parking-lot/get-one/:id", ginext.WrapHandler(lotHandler.GetOneParkingLot))
 	v1Api.GET("/parking-lot/get-list", ginext.WrapHandler(lotHandler.GetListParkingLot))
 	v1Api.PUT("/parking-lot/update/:id", ginext.WrapHandler(lotHandler.UpdateParkingLot))
 	v1Api.DELETE("/parking-lot/delete/:id", ginext.WrapHandler(lotHandler.DeleteParkingLot))
+	v1Api.GET("/parking-lot/info", ginext.WrapHandler(lotHandler.GetParkingLotsInfoByIds))
 
 	v1Api.PUT("/parking-lot/:id/status", ginext.WrapHandler(lotHandler.ChangeParkingLotStatus))
 	v2Api.PUT("/parking-lot/update", ginext.WrapHandler(lotHandler.UpdateParkingLotV2))
@@ -132,16 +151,7 @@ func NewService() *Service {
 	v1Api.GET("/parking-slot/available", ginext.WrapHandler(slotHandler.GetAvailableParkingSlot))
 	v1Api.PUT("/parking-slot/update/:id", ginext.WrapHandler(slotHandler.UpdateParkingSlot))
 	v1Api.DELETE("/parking-slot/delete/:id", ginext.WrapHandler(slotHandler.DeleteParkingSlot))
-
-	//time frame
-	v1Api.GET("/time-frame/get-all", ginext.WrapHandler(timeFrameHandler.GetAllTimeFrame))
-	v1Api.POST("/time-frame/create-multi", ginext.WrapHandler(timeFrameHandler.Create))
-	v1Api.PUT("/time-frame/update", ginext.WrapHandler(timeFrameHandler.Update))
-
-	v1Api.POST("/time-frame/create", ginext.WrapHandler(timeFrameHandler.CreateTimeFrame))
-	v1Api.GET("/time-frame/get-one/:id", ginext.WrapHandler(timeFrameHandler.GetOneTimeFrame))
-	v1Api.PUT("/time-frame/update/:id", ginext.WrapHandler(timeFrameHandler.UpdateTimeFrame))
-	v1Api.DELETE("/time-frame/delete/:id", ginext.WrapHandler(timeFrameHandler.DeleteTimeFrame))
+	// v1Api.GET("/parking-slot/availability", ginext.WrapHandler(slotHandler.DeleteParkingSlot))
 
 	// vehicle
 	v1Api.POST("/vehicle/create", ginext.WrapHandler(vehicleHandler.CreateVehicle))
@@ -157,12 +167,7 @@ func NewService() *Service {
 	v1Api.PUT("/ticket/cancel", ginext.WrapHandler(ticketHandler.CancelTicket))
 	v1Api.POST("/ticket/extend", ginext.WrapHandler(ticketHandler.ExtendTicket))
 	v1Api.POST("/ticket/procedure", ginext.WrapHandler(ticketHandler.ProcedureWithTicket))
-
-	// favorite
-	v1Api.POST("/favorite/create", ginext.WrapHandler(favoriteHandler.Create))
-	v1Api.GET("/favorite/get-all", ginext.WrapHandler(favoriteHandler.GetAllFavoriteParkingByUser))
-	v1Api.GET("/favorite/get-one", ginext.WrapHandler(favoriteHandler.GetOneFavoriteParking))
-	v1Api.DELETE("/favorite/delete/:id", ginext.WrapHandler(favoriteHandler.DeleteOne))
+	v1Api.POST("/ticket/:id/review", ginext.WrapHandler(ticketHandler.ReviewTicket))
 
 	// company
 	merchantApi.POST("/company/create", cors.Default(), ginext.WrapHandler(companyHanler.CreateCompany))
@@ -188,6 +193,11 @@ func NewService() *Service {
 	v1Api.DELETE("/employee/delete/:id", ginext.WrapHandler(employeeHandler.DeleteEmployee))
 	v1Api.POST("/employee/login", cors.Default(), ginext.WrapHandler(employeeHandler.Login))
 	v1Api.GET("/employee/get-one/:id", cors.Default(), ginext.WrapHandler(employeeHandler.GetOneEmployee))
+
+	// admin
+	// adminApi.GET("/parking-lot")
+	// adminApi.PUT("/parking-lot")
+	//    adminApi.PUT("/parking-lot/status")
 
 	// Migrate
 	migrateHandler := handlers.NewMigrationHandler(db)

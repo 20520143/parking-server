@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/praslar/lib/common"
-	"gitlab.com/goxp/cloud0/ginext"
-	"gitlab.com/goxp/cloud0/logger"
 	"net/http"
 	"parking-server/pkg/model"
 	"parking-server/pkg/service"
 	"parking-server/pkg/utils"
 	"parking-server/pkg/valid"
+
+	"github.com/praslar/lib/common"
+	"gitlab.com/goxp/cloud0/ginext"
+	"gitlab.com/goxp/cloud0/logger"
 )
 
 type ParkingLotHandler struct {
@@ -39,7 +40,6 @@ func (h *ParkingLotHandler) CreateParkingLot(r *ginext.Request) (*ginext.Respons
 	}
 
 	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{Data: res}}, nil
-
 }
 
 func (h *ParkingLotHandler) GetListParkingLot(r *ginext.Request) (*ginext.Response, error) {
@@ -116,6 +116,67 @@ func (h *ParkingLotHandler) UpdateParkingLot(r *ginext.Request) (*ginext.Respons
 	}}, nil
 }
 
+func (h *ParkingLotHandler) ChangeParkingLotStatus(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	// parse & check valid request
+	var req model.ChangeStatusReq
+	if err := r.GinCtx.BindJSON(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	// parse id
+	req.ID = utils.ParseIDFromUri(r.GinCtx)
+	if req.ID == nil {
+		log.Error("error_400: Wrong id ")
+		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
+	}
+
+	res, err := h.service.ChangeParkingLotStatus(r.Context(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
+		Data: res,
+	}}, nil
+}
+
+func (h *ParkingLotHandler) UpdateParkingLotV2(r *ginext.Request) (*ginext.Response, error) {
+	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
+
+	// parse & check valid request
+	var req model.UpdateParkingLotReq
+	if err := r.GinCtx.BindJSON(&req); err != nil {
+		log.WithError(err).Error("error_400: Error when get parse req")
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+	if err := common.CheckRequireValid(req); err != nil {
+		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
+		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
+	}
+
+	if len(req.Blocks) < 1 || len(req.TimeFrames) < 1 {
+		log.Error("error_400: Missing block or time frame")
+		return nil, ginext.NewError(http.StatusBadRequest, "Missing block or time frame")
+	}
+
+	res, err := h.service.UpdateParkingLotV2(r.Context(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
+		Data: res,
+	}}, nil
+}
+
 func (h *ParkingLotHandler) DeleteParkingLot(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
@@ -161,12 +222,12 @@ func (h *ParkingLotHandler) GetListParkingLotCompany(r *ginext.Request) (*ginext
 	}}, nil
 }
 
-func (h *ParkingLotHandler) UpdateParkingLotV2(r *ginext.Request) (*ginext.Response, error) {
+func (h *ParkingLotHandler) GetParkingLotsInfoByIds(r *ginext.Request) (*ginext.Response, error) {
 	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
 
 	// parse & check valid request
-	var req model.UpdateParkingLotReq
-	if err := r.GinCtx.BindJSON(&req); err != nil {
+	var req model.GetParkingLotsInfoByIds
+	if err := r.GinCtx.BindQuery(&req); err != nil {
 		log.WithError(err).Error("error_400: Error when get parse req")
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
 	}
@@ -175,44 +236,7 @@ func (h *ParkingLotHandler) UpdateParkingLotV2(r *ginext.Request) (*ginext.Respo
 		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
 	}
 
-	if len(req.Blocks) < 1 || len(req.TimeFrames) < 1 {
-		log.Error("error_400: Missing block or time frame")
-		return nil, ginext.NewError(http.StatusBadRequest, "Missing block or time frame")
-	}
-
-	res, err := h.service.UpdateParkingLotV2(r.Context(), req)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ginext.Response{Code: http.StatusOK, Body: &ginext.GeneralBody{
-		Data: res,
-	}}, nil
-}
-
-func (h *ParkingLotHandler) ChangeParkingLotStatus(r *ginext.Request) (*ginext.Response, error) {
-	log := logger.WithCtx(r.Context(), utils.GetCurrentCaller(h, 0))
-
-	// parse & check valid request
-	var req model.ChangeStatusReq
-	if err := r.GinCtx.BindJSON(&req); err != nil {
-		log.WithError(err).Error("error_400: Error when get parse req")
-		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
-	}
-
-	if err := common.CheckRequireValid(req); err != nil {
-		log.WithError(err).Error("error_400: Fail to check require valid: ", err)
-		return nil, ginext.NewError(http.StatusBadRequest, err.Error())
-	}
-
-	// parse id
-	req.ID = utils.ParseIDFromUri(r.GinCtx)
-	if req.ID == nil {
-		log.Error("error_400: Wrong id ")
-		return nil, ginext.NewError(http.StatusBadRequest, "Wrong id")
-	}
-
-	res, err := h.service.ChangeParkingLotStatus(r.Context(), req)
+	res, err := h.service.GetParkingLotsInfoByIds(r.Context(), req)
 	if err != nil {
 		return nil, err
 	}

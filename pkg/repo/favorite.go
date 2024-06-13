@@ -45,7 +45,7 @@ func (r *RepoPG) DeleteOneFavorite(ctx context.Context, id uuid.UUID, tx *gorm.D
 		tx, cancel = r.DBWithTimeout(ctx)
 		defer cancel()
 	}
-	if err := tx.Where("id = ?", id).Unscoped().Delete(&model.Favorite{}).Error; err != nil {
+	if err := tx.Where("id = ?", id).Delete(&model.Favorite{}).Error; err != nil {
 		log.WithError(err).Error("Error when delete favorite parking - DeleteOneFavorite - RepoPG")
 		return ginext.NewError(http.StatusInternalServerError, "Error when delete favorite parking: "+err.Error())
 	}

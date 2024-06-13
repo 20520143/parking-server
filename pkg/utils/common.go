@@ -62,34 +62,6 @@ func ParseStringIDFromUri(c *gin.Context) *string {
 	return &tID.ID[0]
 }
 
-func ResizeImage(link string, w, h int) string {
-	if link == "" || w == 0 || !strings.Contains(link, LINK_IMAGE_RESIZE) {
-		return link
-	}
-
-	size := getSizeImage(w, h)
-
-	env := "/finan-dev/"
-	linkTemp := strings.Split(link, "/finan-dev/")
-	if len(linkTemp) != 2 {
-		linkTemp = strings.Split(link, "/finan/")
-		env = "/finan/"
-	}
-
-	if len(linkTemp) == 2 {
-		url := linkTemp[0] + "/v2/" + size + env + linkTemp[1]
-		return strings.ReplaceAll(url, " ", "%20")
-	}
-	return strings.ReplaceAll(link, " ", "%20")
-}
-
-func getSizeImage(w, h int) string {
-	if h == 0 {
-		return "w" + strconv.Itoa(w)
-	}
-	return strconv.Itoa(w) + "x" + strconv.Itoa(h)
-}
-
 func ConvertVNPhoneFormat(phone string) string {
 	if phone != "" {
 		if strings.HasPrefix(phone, "84") {
@@ -169,6 +141,10 @@ func CheckRequireValid(ob interface{}) error {
 	}
 	return nil
 }
+func Hash(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	return string(bytes), err
+}
 
 type Time struct {
 	time.Time
@@ -222,9 +198,4 @@ func Sync(from interface{}, to interface{}) interface{} {
 		}
 	}
 	return to
-}
-
-func Hash(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	return string(bytes), err
 }

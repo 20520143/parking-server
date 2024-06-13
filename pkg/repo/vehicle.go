@@ -56,7 +56,7 @@ func (r *RepoPG) GetListVehicle(ctx context.Context, req model.ListVehicleReq) (
 	}
 
 	if req.UserID != nil {
-		tx = tx.Where("user_id = ?", valid.UUID(req.UserID))
+		tx = tx.Where("user_id = ?", valid.String(req.UserID))
 	}
 
 	if req.Sort != "" {

@@ -1,9 +1,10 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gitlab.com/goxp/cloud0/ginext"
-	"time"
 )
 
 type ParkingLot struct {
@@ -38,13 +39,13 @@ type ParkingLotReq struct {
 }
 
 type ListParkingLotReq struct {
-	Name     *string `json:"name" form:"name"`
-	Lat      *string `json:"lat" form:"lat"`
-	Long     *string `json:"long" form:"long"`
-	IsActive *bool   `json:"is_active" form:"is_active"`
-	Sort     string  `json:"sort" form:"sort"`
-	Page     int     `json:"page" form:"page"`
-	PageSize int     `json:"page_size" form:"page_size"`
+	Name     *string  `json:"name" form:"name"`
+	Lat      *float64 `json:"lat" form:"lat" gorm:"type:float"`
+	Long     *float64 `json:"long" form:"long" gorm:"type:float"`
+	Distance *float64 `json:"distance" form:"distance"`
+	Sort     string   `json:"sort" form:"sort"`
+	Page     int      `json:"page" form:"page"`
+	PageSize int      `json:"pageSize" form:"pageSize"`
 }
 
 type ListParkingLotRes struct {
@@ -79,3 +80,18 @@ type ChangeStatusReq struct {
 	ID     *uuid.UUID `json:"id"`
 	Status *string    `json:"status" validate:"required,oneof=active inactive pending"`
 }
+
+type GetParkingLotsInfoByIds struct {
+	ParkingLotIds string `json:"parking_lot_ids" form:"parking_lot_ids"`
+}
+
+type ParkingLotInfo struct {
+	ID               *uuid.UUID `json:"id" gorm:"type:uuid"`
+	TotalSlots       int        `json:"totalSlots"`
+	BookedSlots      int        `json:"bookedSlots"`
+	TotalBookedSlots int        `json:"totalBookedSlots"`
+	GoodReviews      int        `json:"goodReviews"`
+	BadReviews       int        `json:"badReviews"`
+}
+
+type ParkingLotsInfoRes []ParkingLotInfo

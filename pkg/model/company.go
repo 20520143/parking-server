@@ -25,6 +25,7 @@ type CompanyReq struct {
 	PhoneNumber *string    `json:"phoneNumber" valid:"Required"`
 	Email       *string    `json:"email" valid:"Required"`
 	Password    *string    `json:"password"`
+	Status      *string    `json:"status"`
 }
 
 type LoginReq struct {

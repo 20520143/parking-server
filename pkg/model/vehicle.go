@@ -10,11 +10,11 @@ type Vehicle struct {
 	Name   string    `json:"name"`
 	Number string    `json:"number"`
 	Type   string    `json:"type"`
-	UserID uuid.UUID `json:"user_id" gorm:"not null"`
+	UserID uuid.UUID `json:"userId" gorm:"type:uuid;not null"`
 }
 
 func (Vehicle) TableName() string {
-	return "parking_slot"
+	return "vehicle"
 }
 
 type VehicleReq struct {
@@ -26,11 +26,11 @@ type VehicleReq struct {
 }
 
 type ListVehicleReq struct {
-	UserID   *uuid.UUID `json:"user_id" form:"block_id"`
-	Type     *string    `json:"type" form:"type"`
-	Sort     string     `json:"sort" form:"sort"`
-	Page     int        `json:"page" form:"page"`
-	PageSize int        `json:"page_size" form:"page_size"`
+	UserID   *string `json:"user_id" form:"user_id"`
+	Type     *string `json:"type" form:"type"`
+	Sort     string  `json:"sort" form:"sort"`
+	Page     int     `json:"page" form:"page"`
+	PageSize int     `json:"page_size" form:"page_size"`
 }
 
 type ListVehicleRes struct {
